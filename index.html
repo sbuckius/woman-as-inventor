@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAREbot Movement Translator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #c2185b 0%, #880e4f 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e91e63 0%, #880e4f 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .admin-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .admin-btn:hover {
+            background: white;
+            color: #880e4f;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            text-align: center;
+            color: white;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .online-count {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .output-panel {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, #f06292 0%, #c2185b 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header.movement {
+            background: linear-gradient(135deg, #ab47bc 0%, #6a1b9a 100%);
+        }
+
+        .speaker-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .speaker-btn:hover {
+            background: white;
+            color: #880e4f;
+        }
+
+        .speaker-btn.speaking {
+            background: white;
+            color: #880e4f;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f5f5f5;
+        }
+
+        .message-pair {
+            margin-bottom: 20px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message-header {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 10px;
+            line-height: 1.6;
+            background: white;
+            color: #333;
+            border-left: 4px solid #e91e63;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .movement-content {
+            padding: 12px 16px;
+            border-radius: 10px;
+            line-height: 1.8;
+            background: #f3e5f5;
+            color: #4a148c;
+            border-left: 4px solid #ab47bc;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .speak-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .speak-icon:hover {
+            opacity: 1;
+        }
+
+        .input-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        textarea {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: #e91e63;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #e91e63 0%, #880e4f 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .disclaimer {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e91e63;
+            border-radius: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            color: #880e4f;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cancel-btn {
+            background: linear-gradient(135deg, #757575 0%, #424242 100%);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .timestamp {
+            font-size: 0.75em;
+            color: #999;
+            margin-left: auto;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span>💡 CAREbot Movement Translator</span>
+            <div class="admin-controls">
+                <button class="admin-btn" onclick="showLoadModal()">📥 Load Patents</button>
+                <button class="admin-btn" onclick="toggleAutoSpeak()">
+                    <span id="autoSpeakBtn">🔇 Auto-Speak: OFF</span>
+                </button>
+                <button class="admin-btn" onclick="showResetModal()">🔄 Reset All</button>
+            </div>
+        </div>
+
+        <div class="user-info" style="background: white; color: #333; border-radius: 0;">
+            <span id="userDisplay">Enter your name below to start</span>
+            <span class="online-count" id="onlineCount" style="background: #e91e63; color: white;">👥 0 online</span>
+        </div>
+
+        <div class="main-content">
+            <div class="output-panel">
+                <div class="panel-header">
+                    📝 Information Output
+                </div>
+                <div class="messages-area" id="infoOutput">
+                    <div class="loading">Loading messages...</div>
+                </div>
+            </div>
+
+            <div class="output-panel">
+                <div class="panel-header movement">
+                    🎭 Movement Pseudocode
+                    <button class="speaker-btn" id="speakAllBtn" onclick="speakAllMovements()">🔊 Speak All</button>
+                </div>
+                <div class="messages-area" id="movementOutput">
+                    <div class="loading">Waiting for contributions...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-row">
+                <input type="text" id="userName" placeholder="Your name..." maxlength="20">
+            </div>
+            <div class="input-row">
+                <textarea id="messageInput" placeholder="Share information about women inventors..."></textarea>
+            </div>
+            <div class="input-row">
+                <button onclick="sendMessage()">📤 Submit & Generate Movement</button>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            Each contribution generates movement instructions inspired by the content. Click 🔊 to hear instructions read aloud.
+        </div>
+    </div>
+
+    <!-- Load Patents Modal -->
+    <div id="loadModal" class="modal">
+        <div class="modal-content">
+            <h3>📥 Load Patent Database</h3>
+            <p>This will load 115+ responses about women inventors into the database and generate movement instructions for each.</p>
+            <p style="color: #d32f2f; margin: 15px 0;"><strong>Note:</strong> This will add to existing messages.</p>
+            <div id="loadProgress" style="display: none;">
+                <div style="width: 100%; height: 30px; background: #e0e0e0; border-radius: 15px; overflow: hidden; margin: 15px 0;">
+                    <div style="height: 100%; background: linear-gradient(135deg, #e91e63 0%, #880e4f 100%); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;" id="progressFill">0%</div>
+                </div>
+                <p style="text-align: center; color: #666;">Loading patents...</p>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button style="flex: 1; background: linear-gradient(135deg, #757575 0%, #424242 100%);" onclick="closeLoadModal()">Cancel</button>
+                <button style="flex: 1;" onclick="loadAllPatents()">Load Database</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Modal -->
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ Reset All Messages?</h3>
+            <p>This will permanently delete all messages and movement instructions. This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeResetModal()">Cancel</button>
+                <button onclick="confirmReset()">Reset All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBK9wTaCHmQAorUOch1LNENU7rJjfyDoCA",
+  authDomain: "womanasinventor.firebaseapp.com",
+  projectId: "womanasinventor",
+  storageBucket: "womanasinventor.firebasestorage.app",
+  messagingSenderId: "290959160470",
+  appId: "1:290959160470:web:a9025db53ddde2ce117eb7",
+  measurementId: "G-QFV8TEZDWN"
+};
+
+        let app, database, messagesRef, onlineRef;
+        let currentUser = localStorage.getItem('carebotUserName') || '';
+        let userColor = localStorage.getItem('carebotUserColor') || generateColor();
+        let autoSpeak = false;
+        let currentSpeech = null;
+
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            messagesRef = database.ref('movementMessages');
+            onlineRef = database.ref('online');
+            
+            console.log('Firebase initialized successfully');
+            initializeApp();
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+            document.getElementById('infoOutput').innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <strong>⚠️ Firebase Configuration Required</strong><br><br>
+                    Please configure Firebase credentials.
+                </div>
+            `;
+            document.getElementById('movementOutput').innerHTML = document.getElementById('infoOutput').innerHTML;
+        }
+
+        function generateColor() {
+            const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            localStorage.setItem('carebotUserColor', color);
+            return color;
+        }
+
+        function initializeApp() {
+            if (currentUser) {
+                document.getElementById('userName').value = currentUser;
+                updateUserDisplay();
+                trackPresence();
+            }
+
+            document.getElementById('userName').addEventListener('change', function() {
+                currentUser = this.value.trim();
+                localStorage.setItem('carebotUserName', currentUser);
+                updateUserDisplay();
+                if (currentUser) trackPresence();
+            });
+
+            messagesRef.on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                displayMessage(message, snapshot.key);
+            });
+
+            messagesRef.on('child_removed', (snapshot) => {
+                const infoMsg = document.getElementById('info-' + snapshot.key);
+                const moveMsg = document.getElementById('move-' + snapshot.key);
+                if (infoMsg) infoMsg.remove();
+                if (moveMsg) moveMsg.remove();
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.loading').forEach(el => el.remove());
+            }, 1000);
+
+            onlineRef.on('value', (snapshot) => {
+                const online = snapshot.val() || {};
+                document.getElementById('onlineCount').textContent = `👥 ${Object.keys(online).length} online`;
+            });
+
+            document.getElementById('messageInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    sendMessage();
+                }
+            });
+        }
+
+        function updateUserDisplay() {
+            const display = document.getElementById('userDisplay');
+            display.innerHTML = currentUser ? `Posting as: <strong>${currentUser}</strong>` : 'Enter your name below to start';
+        }
+
+        function trackPresence() {
+            if (!currentUser || !onlineRef) return;
+            const userRef = onlineRef.child(currentUser.replace(/[.#$[\]]/g, '_'));
+            userRef.set({
+                name: currentUser,
+                color: userColor,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            userRef.onDisconnect().remove();
+        }
+
+        function generateMovementPseudocode(text) {
+            // Extract key concepts and generate movement instructions
+            const words = text.toLowerCase();
+            let movements = [];
+
+            // Header
+            movements.push(`MOVEMENT SEQUENCE: "${text.substring(0, 50)}..."`);
+            movements.push(`DURATION: ${Math.ceil(text.length / 20)} seconds`);
+            movements.push(`\nINSTRUCTIONS:`);
+
+            // Generate movements based on content
+            if (words.includes('invent') || words.includes('creat')) {
+                movements.push(`1. REACH forward with both arms`);
+                movements.push(`   - Extend arms fully, palms open`);
+                movements.push(`   - Symbolizes creating something new`);
+            }
+
+            if (words.includes('patent') || words.includes('design')) {
+                movements.push(`2. DRAW in the air`);
+                movements.push(`   - Trace geometric shapes`);
+                movements.push(`   - Represents documenting ideas`);
+            }
+
+            if (words.includes('machine') || words.includes('mechanism') || words.includes('device')) {
+                movements.push(`3. ROTATE arms like gears`);
+                movements.push(`   - Circular motions, alternating directions`);
+                movements.push(`   - Embodies mechanical movement`);
+            }
+
+            if (words.includes('textile') || words.includes('fabric') || words.includes('weav')) {
+                movements.push(`4. WEAVE hands together`);
+                movements.push(`   - Interlace fingers rhythmically`);
+                movements.push(`   - Mimics textile creation`);
+            }
+
+            if (words.includes('comput') || words.includes('calculat')) {
+                movements.push(`5. TAP fingers sequentially`);
+                movements.includes(`   - Like typing or calculating`);
+                movements.push(`   - Represents computation`);
+            }
+
+            if (words.includes('discover') || words.includes('found')) {
+                movements.push(`6. OPEN arms wide`);
+                movements.push(`   - Expand outward from center`);
+                movements.push(`   - Symbolizes discovery and revelation`);
+            }
+
+            if (words.includes('collaborate') || words.includes('together')) {
+                movements.push(`7. CONNECT hands with partner`);
+                movements.push(`   - Join hands or mirror movements`);
+                movements.push(`   - Represents collaboration`);
+            }
+
+            // Year-based movements
+            const yearMatch = text.match(/\b(18|19|20)\d{2}\b/);
+            if (yearMatch) {
+                const year = yearMatch[0];
+                movements.push(`8. TIME marker: ${year}`);
+                movements.push(`   - Step forward ${Math.floor((parseInt(year) - 1800) / 20)} paces`);
+                movements.push(`   - Each pace = 20 years of history`);
+            }
+
+            // Add crescendo movement
+            movements.push(`\n9. CRESCENDO gesture`);
+            movements.push(`   - Begin low, rise gradually`);
+            movements.push(`   - Represent growth and impact`);
+
+            // Closing
+            movements.push(`\n10. HOLD final pose`);
+            movements.push(`   - Freeze position for 3 seconds`);
+            movements.push(`   - Honor the inventor's legacy`);
+
+            movements.push(`\nEND SEQUENCE`);
+
+            return movements.join('\n');
+        }
+
+        function displayMessage(message, messageId) {
+            const infoDiv = document.getElementById('infoOutput');
+            const moveDiv = document.getElementById('movementOutput');
+
+            // Remove loading messages
+            infoDiv.querySelectorAll('.loading').forEach(el => el.remove());
+            moveDiv.querySelectorAll('.loading').forEach(el => el.remove());
+
+            const timestamp = message.timestamp ? new Date(message.timestamp).toLocaleString() : '';
+            const avatar = (message.userName || 'A').substring(0, 1).toUpperCase();
+
+            // Information output
+            const infoPair = document.createElement('div');
+            infoPair.className = 'message-pair';
+            infoPair.id = 'info-' + messageId;
+            infoPair.innerHTML = `
+                <div class="message-header">
+                    <div class="user-avatar" style="background: ${message.userColor};">${avatar}</div>
+                    <strong>${message.userName || 'Anonymous'}</strong>
+                    <span class="timestamp">${timestamp}</span>
+                </div>
+                <div class="message-content">${escapeHtml(message.text)}</div>
+            `;
+            infoDiv.appendChild(infoPair);
+
+            // Movement output
+            const movePair = document.createElement('div');
+            movePair.className = 'message-pair';
+            movePair.id = 'move-' + messageId;
+            movePair.innerHTML = `
+                <div class="message-header">
+                    <div class="user-avatar" style="background: ${message.userColor};">${avatar}</div>
+                    <strong>${message.userName || 'Anonymous'}</strong>
+                    <span class="timestamp">${timestamp}</span>
+                </div>
+                <div class="movement-content">
+                    <span class="speak-icon" onclick="speakMovement('${messageId}')">🔊</span>
+                    ${escapeHtml(message.movement)}
+                </div>
+            `;
+            moveDiv.appendChild(movePair);
+
+            // Auto-scroll
+            infoDiv.scrollTop = infoDiv.scrollHeight;
+            moveDiv.scrollTop = moveDiv.scrollHeight;
+
+            // Auto-speak if enabled
+            if (autoSpeak) {
+                setTimeout(() => speakMovement(messageId), 500);
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            const userName = document.getElementById('userName').value.trim();
+
+            if (!userName) {
+                alert('Please enter your name first!');
+                document.getElementById('userName').focus();
+                return;
+            }
+
+            if (!message) {
+                alert('Please enter a message!');
+                return;
+            }
+
+            if (!messagesRef) {
+                alert('Firebase not initialized.');
+                return;
+            }
+
+            // Generate movement pseudocode
+            const movement = generateMovementPseudocode(message);
+
+            // Save to Firebase
+            messagesRef.push({
+                text: message,
+                movement: movement,
+                userName: userName,
+                userColor: userColor,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            input.value = '';
+            input.focus();
+        }
+
+        function speakMovement(messageId) {
+            const moveElement = document.getElementById('move-' + messageId);
+            if (!moveElement) return;
+
+            const movementText = moveElement.querySelector('.movement-content').textContent.replace('🔊', '').trim();
+
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(movementText);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                // Highlight during speech
+                const speakIcon = moveElement.querySelector('.speak-icon');
+                speakIcon.style.opacity = '1';
+                speakIcon.textContent = '⏸️';
+
+                utterance.onend = () => {
+                    speakIcon.style.opacity = '0.6';
+                    speakIcon.textContent = '🔊';
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('Text-to-speech is not supported in your browser.');
+            }
+        }
+
+        function speakAllMovements() {
+            const movements = document.querySelectorAll('#movementOutput .movement-content');
+            if (movements.length === 0) {
+                alert('No movements to speak!');
+                return;
+            }
+
+            const btn = document.getElementById('speakAllBtn');
+            btn.classList.add('speaking');
+            btn.textContent = '⏸️ Speaking...';
+
+            let allText = 'Reading all movement sequences. ';
+            movements.forEach((move, index) => {
+                allText += `Sequence ${index + 1}. ` + move.textContent.replace('🔊', '').trim() + '. ';
+            });
+
+            const utterance = new SpeechSynthesisUtterance(allText);
+            utterance.rate = 0.9;
+            utterance.onend = () => {
+                btn.classList.remove('speaking');
+                btn.textContent = '🔊 Speak All';
+            };
+
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+
+        async function loadAllPatents() {
+            if (!messagesRef) {
+                alert('Firebase not initialized.');
+                return;
+            }
+
+            document.getElementById('loadProgress').style.display = 'block';
+            const progressFill = document.getElementById('progressFill');
+
+            const patentData = [{
+                text: "Katherine G. Johnson co-authored NASA Technical Note D-233 in 1960, presenting mathematical expressions for determining satellite trajectories and orbital mechanics. Her calculations were critical for placing satellites over selected Earth positions—work that helped launch America into space and proved essential for the space program!",
+                source: "NASA Technical Note D-233 (1960)",
+                link: "https://ntrs.nasa.gov/citations/19980227091"
+            },
+            {
+                text: "Mary E. Winter patented an adding machine on May 23, 1882 (Patent No. 258,518). Her sophisticated mechanical calculator used ratchet wheels, pawls, and operating keys numbered 1-10 to perform addition up to 600. The machine included innovative features like bent pawls hinged to carrying-arms and pawl-trippers to prevent wear on the mechanism.",
+                source: "U.S. Patent No. 258,518 (1882)",
+                link: "https://patents.google.com/patent/US258518"
+            },
+            {
+                text: "Ancient tradition credits women with inventing the arts most necessary to civilization. Isis in Egypt was worshiped for inventing bread-making and founding agriculture. Before her time, Egyptians lived on uncooked roots and herbs. She also taught the art of healing, the manufacture of flax, and laid the foundations of Egyptian literature!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "The invention of silk is attributed to Si-ling-chi, wife of Emperor Hoang-ti, four thousand years before Christ. China itself was named after her! Known as Sien Tshan, the goddess of silkworms, she is still worshiped today. For ages, the secret of silk was kept from other nations, and Roman emperors paid its weight in gold for a single garment.",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Katherine Johnson's work at NASA involved complex orbital mechanics calculations. Her technical paper addressed how to determine azimuth angles at burnout for satellite launches, accounting for the Earth's rotation and oblateness. She worked on both eastward and westward satellite launches, proving there were no limitations based on launch direction!",
+                source: "NASA Technical Note D-233 (1960)",
+                link: "https://ntrs.nasa.gov/citations/19980227091"
+            },
+            {
+                text: "Mary Winter's adding machine was remarkably sophisticated for 1882. It featured two series of ratchet teeth (upper and lower), a dial plate numbered from 1 to 600, and a spring mechanism that could reset the machine to zero. Keys 1-7 operated on the upper teeth series, while keys 6, 8, 9, and 10 operated on the lower series.",
+                source: "U.S. Patent No. 258,518 (1882)",
+                link: "https://patents.google.com/patent/US258518"
+            },
+            {
+                text: "Minerva, the Greek goddess, was regarded as the inventor of every kind of work done by women. But she was also credited with originating agriculture and mechanics, inventing all tools of handicraft, musical instruments, war chariots, shipbuilding, and even the breaking of horses!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "The cotton-gin, one of the most remarkable inventions of the age, was conceived by Catharine Littlefield Greene, widow of Revolutionary General Greene. She entrusted its construction to Eli Whitney, who was boarding with her. When the wooden teeth failed, Whitney wanted to give up, but Greene's faith never wavered—she suggested using wire instead. Within ten days, a perfect model was completed!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "In Katherine Johnson's NASA work, she developed equations for relating satellite position in the orbital plane to latitude and longitude on a rotating Earth. Her paper included examples of satellites passing over selected positions after completing three orbits, with incremental changes calculated to account for Earth's oblateness!",
+                source: "NASA Technical Note D-233 (1960)",
+                link: "https://ntrs.nasa.gov/citations/19980227091"
+            },
+            {
+                text: "The New York Times wrote: 'The feminine mind is, as a rule, quicker than the masculine mind; takes hints and sees defects which would escape the average man's attention.' The Scientific American testified that women's inventions 'in their practical character and adaptation of means to effect a definite purpose, fully equal the same number of inventions made by men.'",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Barbara Uttmann of Saxony invented pillow-lace making when her country was on the verge of financial ruin. The art spread rapidly, and Belgium derived immense revenue from it. Three hundred years later, lace still continues to be Belgium's great source of wealth. Not only did it bring prosperity, but a great moral change for the better appeared as one of its effects!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Mary Winter's adding machine patent shows her deep understanding of mechanical engineering. Her design included T-shaped keys with hinges, spiral springs for retraction, detent pawls to prevent backward movement, and stops to limit the throw of pawls. This level of mechanical sophistication was extraordinary for the era!",
+                source: "U.S. Patent No. 258,518 (1882)",
+                link: "https://patents.google.com/patent/US258518"
+            },
+            {
+                text: "Mheural Nisa, known as 'Light of the Harem,' invented the priceless Cashmere shawls that give employment to thousands and form one of India's principal revenue sources. She also invented Attar of Roses, the most exquisite and costly perfume. Her husband was so devoted that he caused her name and the title 'Light of the World' to be struck on India's coins!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Miss Betsy Metcalf made the first straw bonnet ever manufactured in the United States in 1798. Within twelve years, Massachusetts alone produced half a million dollars' worth of straw goods. Today, that state produces six million hats and bonnets annually—all from one woman's ingenuity!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Katherine Johnson's technical paper was published by NASA's Langley Research Center in September 1960. Her mathematical work enabled precise calculations for satellite recovery missions, determining exactly where a satellite would be after any number of orbital passes—critical for bringing satellites over preselected reentry points!",
+                source: "NASA Technical Note D-233 (1960)",
+                link: "https://ntrs.nasa.gov/citations/19980227091"
+            },
+            {
+                text: "Wood-engraving, the pioneer of all other forms of engraving, was invented by the Cunio children—twin sister and brother—at Ravenna, Italy, in the thirteenth century. The discovery of cotton as a textile fiber was attributed to the mother of the Incas, who taught the Peruvians its manufacture.",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Mrs. Mary E. Walton invented a method for deadening the noise of elevated railroads after Edison and other inventors had unsuccessfully tried for six months. Her device was immediately adopted by the Metropolitan and other railways. A prominent New York physician noted that the constant din of the city causes shattered nervous systems—making her invention a tremendous benefit to human health!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Miss Maggie Knight invented the machine for manufacturing satchel-bottom paper bags—the kind we still use today. The Commissioner of Patents complimented her on its entire originality, noting that most inventions merely improve upon preceding ones. She refused fifty thousand dollars for her patent shortly after receiving it!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Mary Winter of Galesburg, Illinois worked with Cushman W. Crary of Chicago on the adding machine patent. The machine could add columns of numbers and automatically display the running total on a dial visible through a slot in the case. When a calculation was complete, a spring mechanism would reset it to start a new column!",
+                source: "U.S. Patent No. 258,518 (1882)",
+                link: "https://patents.google.com/patent/US258518"
+            },
+            {
+                text: "The gimlet-pointed screw, invented by a little girl, has realized millions of dollars. A San Francisco lady's baby carriage invention brought her fourteen thousand dollars. The paper pail, invented by a Chicago lady, yields a large income. Sometimes the smallest inventions prove the most lucrative!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "The aquarium was invented by Madam Jeanette Power, one of the most eminent naturalists of the century. Its value to marine zoology is incalculable—rare species from different oceans can be compared, and the great Darwinian problems of evolution are being solved by its use!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Katherine Johnson worked with T. H. Skopinski on the NASA technical note. Her calculations used spherical-triangle relations, elliptical orbit equations, and celestial mechanics to solve the complex problem of satellite positioning. She even accounted for the Earth's oblateness as incremental corrections in an iterative procedure!",
+                source: "NASA Technical Note D-233 (1960)",
+                link: "https://ntrs.nasa.gov/citations/19980227091"
+            },
+            {
+                text: "Harriet Hosmer, the celebrated sculptor, invented a process for producing marble from limestone that closely simulates the finest antique varieties—a process the Italian Government had long sought without success. But her most valuable invention is the permanent magnet as a motive power, deemed one of the most important inventions of the century!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "The Burden horse-shoe machine, turning out a complete shoe every three seconds, was a woman's invention. At a patent renewal in 1871, it was claimed that thirty-two million dollars had been saved to the public during just fourteen years of its use!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Mary Winter's adding machine included innovative safety features. Keys had downward-projecting lugs that would strike the bottom of the case if depressed too much, preventing injury to the delicate mechanism. The machine also featured a brake system to prevent too rapid motion when resetting!",
+                source: "U.S. Patent No. 258,518 (1882)",
+                link: "https://patents.google.com/patent/US258518"
+            },
+            {
+                text: "Hon. Samuel Fisher, while Commissioner of Patents, said: 'Any sketch of American inventions would be imperfect which failed to do justice to the part taken by woman.' Yet despite this, the United States census failed to even enumerate women among the inventors of the country!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Madame Bessani, a humble workwoman, rediscovered the lost stitch of 'Puleto di Venezia' (Venetian Point) lace from the thirteenth century. The Italian Minister of Commerce gave her letters patent with exclusive control for fifteen years. The importance of her invention to Italy is incalculable, opening an immense source of revenue and political power!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Mrs. Ann Harned Manning perfected the combined action of teeth and cutters for the mower and reaper in 1817-18. She also invented a clover cleaner that proved very lucrative—though her husband took out the patents. After his death, a neighbor even robbed her of other improvements she hadn't patented!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Katherine Johnson's work shows that expressions can be developed to establish the azimuth angle at burnout required to place a satellite over any selected Earth position after a given number of orbits. Her paper provided examples for both eastward and westward launches, each calculated to pass over selected positions after completing exactly three orbits!",
+                source: "NASA Technical Note D-233 (1960)",
+                link: "https://ntrs.nasa.gov/citations/19980227091"
+            },
+            {
+                text: "Ancient Greek tradition credits the Muses with inventing letters and writing. Divination—that art which ruled the actions of heroes and turned the fate of empires—has come down through history as originating with women, through sibyls, priestesses, oracles, and sacred books.",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Gauze was invented by Pamphile, a woman of Cos. Shortly after silk was introduced to Europe, she unraveled its web and re-manufactured it into a transparent fabric known to Roman ladies as 'Coa vestis.' One of the most diaphanous fabrics of the ancient world, it was called 'The Woven Wind,' yet was strong enough to take colors and bear embroidery of silk and gold thread!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Mary Winter's patent demonstrates women's mechanical genius despite the barriers they faced. The adding machine specification includes detailed drawings showing four sheets of technical diagrams—top plans, sectional elevations, and enlarged views of the ratchet wheels, pawls, and operating mechanisms!",
+                source: "U.S. Patent No. 258,518 (1882)",
+                link: "https://patents.google.com/patent/US258518"
+            },
+            {
+                text: "The value of the finest thread lace when wrought exceeds that of precious stones. No other art can bring about such an extraordinary increase in value from a material worth as little as flax in its unwrought state. And woman was its originator!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "To prepare food, woman invented and ornamented pottery. Among savage races it is still easy to trace the inception and growth of this art in woman's hands. That she was the primitive artist is quite universally conceded.",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "The most ancient Chinese writers accord the invention of spinning to Yao, wife of the fourth emperor, four thousand years before Christ. The culture of the mulberry, the rearing of silkworms, and the manufacture of silk are still the great staple domestic industries of the Chinese people.",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Katherine Johnson's calculations were so precise that her NASA paper compared results with three-degree-of-freedom calculations performed on an IBM 704 computer. For the eastward launch example, her method placed the satellite just 18.6 nautical miles from the desired position—remarkable accuracy for hand calculations!",
+                source: "NASA Technical Note D-233 (1960)",
+                link: "https://ntrs.nasa.gov/citations/19980227091"
+            },
+            {
+                text: "Why didn't more women take out patents in their own names? Because to do so would expose them to ridicule and contempt, and a loss of position in society, which frowned upon any attempt at outside industry for women. Many patents in men's names are actually due to women's inventions!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "In not a single State of the Union was a married woman held to possess a right to her earnings within the family. Should she obtain a patent, she would hold no legal right to contract or license anyone to use her invention. Her husband could take it, sell it, give it away, or refuse to use it—and she would have no remedy!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Recent inventions by women include: a volcanic furnace for smelting ore, a fire-escape, devices for correct pen-holding in schools, a self-fastening button, a portable reservoir for fires, improvements for heating railway cars without fire, a danger-signal for street crossings, and a deep-sea telescope for inspecting ship bottoms without dry-docking!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Woman invented systems for improved drainage, better ventilation, forcing water to great heights and distances, and a thousand household appliances. Every invention, however small, develops new industries, provides work for multitudes, increases commercial activity, and renders life more desirable!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "During King George III's reign, England averaged only fourteen patents yearly. Now it averages five thousand, while the United States averages eighteen thousand. This difference is directly traceable to the progress of freedom and education. Woman's restricted education and political power means her degradation reacts injuriously upon the entire race!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Madame de Coudray invented the manikin, through which knowledge of physiology has been much more widely diffused than would otherwise have been possible. Many delicate surgical instruments owe their origin to women, as does the adaptation of wax for recording medical observations.",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "The Eureka street-sweeper was invented by a Hoboken lady after her dress was spattered with mud by a clumsy machine in New York one day. Possessed of mechanical genius, she determined to create a sweeper that would do its work more perfectly. Her success was great, and her invention a vast improvement upon all predecessors!",
+                source: "\"Woman as an Inventor\" by Matilda Joslyn Gage, North American Review (1883)",
+                link: "https://archive.org/details/jstor-25118326"
+            },
+            {
+                text: "Phoebe Sarah Marks (later known as Hertha Ayrton) patented a Draftsman's Dividing-Instrument on January 6, 1885 (Patent No. 310,450). This mathematical instrument allowed users to divide any given line or space into equal divisions without calculation—requiring only simple manipulation. It was a brilliant solution to a problem that previously required delicate measurement and exact calculation!",
+                source: "U.S. Patent No. 310,450 (1885)",
+                link: "https://patents.google.com/patent/US310450"
+            },
+            {
+                text: "Hertha Ayrton's dividing instrument used an ingenious combination of a base-piece, graduated limb, and pivoting ruler. The base stayed fixed while the graduated limb moved along an undercut tongue and groove. By sliding these parts and making marks, a user could divide any space into (for example) seventeen equal parts without any mathematical calculation whatsoever!",
+                source: "U.S. Patent No. 310,450 (1885)",
+                link: "https://patents.google.com/patent/US310450"
+            },
+            {
+                text: "Phoebe Sarah Marks filed her patent as a 'spinster' residing at 13 Cornwall Residences, Regents Park, London. She was a subject of the Queen of Great Britain and had already obtained a British patent (No. 5,443) for the same invention in March 1884. Her mathematical instrument showed extraordinary mechanical ingenuity and understanding of geometry!",
+                source: "U.S. Patent No. 310,450 (1885)",
+                link: "https://patents.google.com/patent/US310450"
+            },
+            {
+                text: "Margaret A. Wise invented a Computing Attachment for Scale-Beams, patented January 2, 1900 (Patent No. 640,348). This ingenious device automated calculations for weighing scales, making commercial transactions more accurate and efficient!",
+                source: "U.S. Patent No. 640,348 (1900)",
+                link: "https://patents.google.com/patent/US640348"
+            },
+            {
+                text: "Emily C. Duncan was a prolific calculator inventor! She patented her first calculator on November 24, 1903 (Patent No. 745,167) and improved it with a second patent on January 19, 1904 (Patent No. 749,851). Her innovations contributed to the development of mechanical computing!",
+                source: "U.S. Patents No. 745,167 & 749,851 (1903-1904)",
+                link: "https://patents.google.com/patent/US745167"
+            },
+            {
+                text: "Elizabeth C. Swinnerton patented a Novelty Device on May 26, 1914 (Patent No. 1,097,891). This computing device showed women's continued innovation in mechanical calculation technology during the early 20th century!",
+                source: "U.S. Patent No. 1,097,891 (1914)",
+                link: "https://patents.google.com/patent/US1097891"
+            },
+            {
+                text: "Edith Clarke, a pioneering electrical engineer, patented a Calculator on September 1, 1925 (Patent No. 1,552,113). Clarke was the first woman to earn an M.S. in electrical engineering from MIT and became the first female professor of electrical engineering in the United States!",
+                source: "U.S. Patent No. 1,552,113 (1925)",
+                link: "https://patents.google.com/patent/US1552113"
+            },
+            {
+                text: "Elizabeth Janneson invented a Number-Learning Device, patented September 17, 1929 (Patent No. 1,728,491). This educational tool helped children learn mathematics, demonstrating women's contributions to both computing technology and education!",
+                source: "U.S. Patent No. 1,728,491 (1929)",
+                link: "https://patents.google.com/patent/US1728491"
+            },
+            {
+                text: "Sarah Ann Ayres designed a Tax Computer, patented August 7, 1951 (Design Patent No. 164,150). This specialized calculating device helped simplify the complex task of tax computation in the post-war era!",
+                source: "U.S. Design Patent No. 164,150 (1951)",
+                link: "https://patents.google.com/patent/USD164150"
+            },
+            {
+                text: "Evelyn Berezin patented Control Means with Record Sensing for an Electronic Calculator on February 28, 1961 (Patent No. 2,973,141). Berezin later designed the first true word processor and founded the Redactron Corporation. She's known as the 'mother of the word processor'!",
+                source: "U.S. Patent No. 2,973,141 (1961)",
+                link: "https://patents.google.com/patent/US2973141"
+            },
+            {
+                text: "Helen A. Blanchard was a sewing machine innovation powerhouse with at least 10 patents! Her first patent for Improvement in Sewing-Machines came on May 6, 1873 (Patent No. 141,987). She revolutionized the sewing industry with innovations that are still used today!",
+                source: "U.S. Patent No. 141,987 (1873)",
+                link: "https://patents.google.com/patent/US141987"
+            },
+            {
+                text: "Helen A. Blanchard invented the Hollow Needle for sewing machines, patented February 14, 1882 (Patent No. 252,992). This innovation was crucial for industrial sewing and garment manufacturing, improving efficiency and stitch quality!",
+                source: "U.S. Patent No. 252,992 (1882)",
+                link: "https://patents.google.com/patent/US252992"
+            },
+            {
+                text: "In a single day—October 8, 1901—Helen A. Blanchard received FOUR different sewing machine patents! These included hat-sewing machines, an overseaming machine, and a seam for sewed articles. Her prolific innovation transformed the garment industry!",
+                source: "U.S. Patents No. 683,900-683,902 & 684,176 (1901)",
+                link: "https://patents.google.com/patent/US683900"
+            },
+            {
+                text: "Sarah Boone, an African American inventor, patented an improved Ironing-Board on April 26, 1892 (Patent No. 473,653). Her design was specifically shaped to iron the sleeves and bodies of ladies' garments more effectively—an innovation we still use today!",
+                source: "U.S. Patent No. 473,653 (1892)",
+                link: "https://patents.google.com/patent/US473653"
+            },
+            {
+                text: "Mary Phelps Jacob patented the modern Brassiere on November 3, 1914 (Patent No. 1,115,674). She created it from two silk handkerchiefs and ribbon as a more comfortable alternative to the restrictive corset, revolutionizing women's undergarments!",
+                source: "U.S. Patent No. 1,115,674 (1914)",
+                link: "https://patents.google.com/patent/US1115674"
+            },
+            {
+                text: "Edna McArthur and colleagues patented a Type-writing Machine on July 10, 1906 (Patent No. 825,335). This was one of many typewriter innovations by women inventors who understood the needs of office workers firsthand!",
+                source: "U.S. Patent No. 825,335 (1906)",
+                link: "https://patents.google.com/patent/US825335"
+            },
+            {
+                text: "Emma Sherwood patented Typewriting Apparatus on April 6, 1916 (Patent No. 1,166,487), contributing to the evolution of office technology during a time when women dominated the typing profession!",
+                source: "U.S. Patent No. 1,166,487 (1916)",
+                link: "https://patents.google.com/patent/US1166487"
+            },
+            {
+                text: "Lizzie J. Magie invented a Scale for Hammond Type-writers, patented March 7, 1893 (Patent No. 498,129). Magie is also famous for inventing The Landlord's Game, the predecessor to Monopoly!",
+                source: "U.S. Patent No. 498,129 (1893)",
+                link: "https://patents.google.com/patent/US498129"
+            },
+            {
+                text: "Mary M. Smith patented an improved Typewriter on December 22, 1953 (Patent No. 2,660,502), showing that women continued to innovate in office technology well into the mid-20th century!",
+                source: "U.S. Patent No. 2,660,502 (1953)",
+                link: "https://patents.google.com/patent/US2660502"
+            },
+            {
+                text: "Beulah Louise Henry, known as 'Lady Edison,' patented a Typewriter on August 4, 1959 (Patent No. 2,897,944) and a Keyboard Assembly on December 22, 1964 (Patent No. 3,159,264). Henry held 49 patents and had over 110 inventions to her name!",
+                source: "U.S. Patents No. 2,897,944 & 3,159,264 (1959, 1964)",
+                link: "https://patents.google.com/patent/US2897944"
+            },
+            {
+                text: "Mary P. C. Hooper patented a Loom on August 28, 1906 (Patent No. 829,474). Loom innovations by women were crucial to the textile industry, which employed millions of workers worldwide!",
+                source: "U.S. Patent No. 829,474 (1906)",
+                link: "https://patents.google.com/patent/US829474"
+            },
+            {
+                text: "Anna M. Boydston and Carrie A. Cowden co-invented a Loom, patented March 15, 1910 (Patent No. 951,935). This collaboration shows women working together to advance textile technology!",
+                source: "U.S. Patent No. 951,935 (1910)",
+                link: "https://patents.google.com/patent/US951935"
+            },
+            {
+                text: "Elna M. de Neergaard designed a Loom-Frame (Design Patent No. 52,697, June 11, 1918) and later patented a full Loom on February 24, 1920 (Patent No. 1,332,165). Her work combined aesthetic design with functional engineering!",
+                source: "U.S. Patents No. D52,697 & 1,332,165 (1918, 1920)",
+                link: "https://patents.google.com/patent/USD52697"
+            },
+            {
+                text: "Josephine Marie Weil patented a Loom for Hand Weaving on April 7, 1925 (Patent No. 1,532,848). Hand-weaving looms kept traditional textile arts alive while industrial looms dominated manufacturing!",
+                source: "U.S. Patent No. 1,532,848 (1925)",
+                link: "https://patents.google.com/patent/US1532848"
+            },
+            {
+                text: "Margaret E. Knight, the 'woman Edison,' co-patented a Skirt-Protector with Harriet M. MacFarland on August 7, 1883 (Patent No. 282,646). Knight held over 20 patents including the famous paper bag machine!",
+                source: "U.S. Patent No. 282,646 (1883)",
+                link: "https://patents.google.com/patent/US282646"
+            },
+            {
+                text: "Harriet Ruth Tracy patented a Sewing-Machine on January 22, 1901 (Patent No. 666,578), contributing to the rapid advancement of garment manufacturing technology at the turn of the century!",
+                source: "U.S. Patent No. 666,578 (1901)",
+                link: "https://patents.google.com/patent/US666578"
+            },
+            {
+                text: "Sarah Lambert Bailey invented a Work Attachment for Sewing-Machines, patented August 28, 1906 (Patent No. 829,830). These attachments made sewing machines more versatile and efficient!",
+                source: "U.S. Patent No. 829,830 (1906)",
+                link: "https://patents.google.com/patent/US829830"
+            },
+            {
+                text: "Margaret Graaf patented a Thread-Cutting Mechanism for Sewing-Machines on December 4, 1906 (Patent No. 837,620). This simple but crucial innovation saved time and improved the quality of finished garments!",
+                source: "U.S. Patent No. 837,620 (1906)",
+                link: "https://patents.google.com/patent/US837620"
+            },
+            {
+                text: "Ida J. Calhoun invented a Guide for Sewing-Machines, patented May 12, 1908 (Patent No. 887,586). Guides helped ensure straight, even stitching—essential for professional-quality sewing!",
+                source: "U.S. Patent No. 887,586 (1908)",
+                link: "https://patents.google.com/patent/US887586"
+            },
+            {
+                text: "Lillian C. Mattell patented a Tension-Device for Sewing-Machines on May 18, 1909 (Patent No. 921,720). Proper thread tension is critical for quality stitching, and her innovation improved machine performance!",
+                source: "U.S. Patent No. 921,720 (1909)",
+                link: "https://patents.google.com/patent/US921720"
+            },
+            {
+                text: "Mary E. Irving designed a Combined Table and Work-Box, patented December 26, 1911 (Patent No. 1,012,856). This ingenious furniture piece combined workspace and storage for sewing supplies!",
+                source: "U.S. Patent No. 1,012,856 (1911)",
+                link: "https://patents.google.com/patent/US1012856"
+            },
+            {
+                text: "Ethel Mary Elsden (later Jones) invented a Spool-Holder for Sewing-Machines, patented April 2, 1912 (Patent No. 1,022,185). Even small improvements like this made sewing more convenient and efficient!",
+                source: "U.S. Patent No. 1,022,185 (1912)",
+                link: "https://patents.google.com/patent/US1022185"
+            },
+            {
+                text: "Mary Magdalene Lamy patented a Cord and Rope-Making Device on March 31, 1914 (Patent No. 1,091,672). This invention supported the textile industry's production of essential materials!",
+                source: "U.S. Patent No. 1,091,672 (1914)",
+                link: "https://patents.google.com/patent/US1091672"
+            },
+            {
+                text: "Margaret Elizabeth Beedle Williams designed a Combined Sewing-Machine Cabinet and Lap-Board, patented April 10, 1917 (Patent No. 1,222,503). This multifunctional furniture combined practicality with space-saving design!",
+                source: "U.S. Patent No. 1,222,503 (1917)",
+                link: "https://patents.google.com/patent/US1222503"
+            },
+            {
+                text: "Women inventors created dozens of textile fabric designs! Elizabeth A. Fenner received Design Patent No. 18,001 in 1888 for a textile fabric design, one of the earliest design patents awarded to a woman for fabric!",
+                source: "U.S. Design Patent No. 18,001 (1888)",
+                link: "https://patents.google.com/patent/USD18001"
+            },
+            {
+                text: "Annie G. Thyng received two textile fabric design patents in 1892 (Design Patents No. 21,525 and 21,998), demonstrating that women were at the forefront of both artistic and industrial textile design!",
+                source: "U.S. Design Patents No. 21,525 & 21,998 (1892)",
+                link: "https://patents.google.com/patent/USD21525"
+            },
+            {
+                text: "Helen P. Johnstone was incredibly prolific, receiving at least 10 design patents for textile fabrics between 1899 and 1907! Her designs shaped the visual culture of American textiles in the early 20th century!",
+                source: "Multiple U.S. Design Patents (1899-1907)",
+                link: "https://patents.google.com/patent/USD31457"
+            },
+            {
+                text: "Sophia L. Crownfield received at least 8 textile fabric design patents between 1905 and 1907, making her one of the most productive fabric designers of her era!",
+                source: "Multiple U.S. Design Patents (1905-1907)",
+                link: "https://patents.google.com/patent/USD37615"
+            },
+            {
+                text: "Emma W. Doughty and Harriet W. Fowler each received multiple textile design patents in the early 1900s, contributing to the rich variety of American fabric patterns during the industrial age!",
+                source: "Multiple U.S. Design Patents (1905-1907)",
+                link: "https://patents.google.com/patent/USD37613"
+            },
+            {
+                text: "Alice Louisa Bygrave patented a Cycling-Skirt on February 25, 1896 (Patent No. 555,428). As bicycling became popular, women inventors created practical clothing that allowed freedom of movement!",
+                source: "U.S. Patent No. 555,428 (1896)",
+                link: "https://patents.google.com/patent/US555428"
+            },
+            {
+                text: "Ellen M. Hoey also patented a Skirt for Cycling on September 20, 1898 (Patent No. 610,988). Multiple women inventors tackled the challenge of creating fashionable yet functional cycling attire!",
+                source: "U.S. Patent No. 610,988 (1898)",
+                link: "https://patents.google.com/patent/US610988"
+            },
+            {
+                text: "Frederika M. McDonald patented an Improvement in Skirt-Protectors on March 31, 1874 (Patent No. 149,280). Skirt-protectors kept long dresses clean in muddy streets—a practical necessity in the 19th century!",
+                source: "U.S. Patent No. 149,280 (1874)",
+                link: "https://patents.google.com/patent/US149280"
+            },
+            {
+                text: "Mary Matilda Odell invented an Infants' Bib, patented June 11, 1895 (Patent No. 540,756). This practical invention made feeding babies cleaner and easier for parents!",
+                source: "U.S. Patent No. 540,756 (1895)",
+                link: "https://patents.google.com/patent/US540756"
+            },
+            {
+                text: "Carrie P. Parker patented a Garment-Fastener on November 21, 1899 (Patent No. 637,524). Fastener innovations made clothing more convenient and helped the ready-to-wear industry flourish!",
+                source: "U.S. Patent No. 637,524 (1899)",
+                link: "https://patents.google.com/patent/US637524"
+            },
+            {
+                text: "Harriet Cutler designed a Nurse's Cap, patented April 24, 1917 (Patent No. 1,223,854). This specialized garment became an iconic symbol of the nursing profession!",
+                source: "U.S. Patent No. 1,223,854 (1917)",
+                link: "https://patents.google.com/patent/US1223854"
+            },
+            {
+                text: "Multiple women inventors patented dress shields between 1915 and 1938, including Anna E. Bienstock, Ethel Shrader, Alma Marie Lassen, and Eleanor W. Standley. These protected clothing from perspiration and extended garment life!",
+                source: "Multiple U.S. Patents (1915-1938)",
+                link: "https://patents.google.com/patent/US1137452"
+            },
+            {
+                text: "Anna Olsson received multiple textile fabric design patents, including Design Patent No. 38,909 in 1907 and No. 40,782 in 1910, showing sustained creativity in textile design!",
+                source: "U.S. Design Patents No. 38,909 & 40,782 (1907, 1910)",
+                link: "https://patents.google.com/patent/USD38909"
+            },
+            {
+                text: "Edna F. Leonhardt received four design patents for textile fabrics for upholstery in 1932, demonstrating women's influence on home décor during the Art Deco era!",
+                source: "Multiple U.S. Design Patents (1932)",
+                link: "https://patents.google.com/patent/USD86782"
+            },
+            {
+                text: "Ida Jolles specialized in needlepoint tapestry fabric designs, receiving Design Patents No. 130,798 (1941) and No. 131,261 (1942). Her intricate designs preserved traditional needlework artistry!",
+                source: "U.S. Design Patents No. 130,798 & 131,261 (1941-1942)",
+                link: "https://patents.google.com/patent/USD130798"
+            },
+            {
+                text: "The list of women's textile and sewing patents shows they dominated design and innovation in fabric, clothing, and sewing technology from the 1870s through the 1940s—yet many of their names have been forgotten by history!",
+                source: "Multiple U.S. Patents (1870s-1940s)",
+                link: "https://patents.google.com"
+            },
+            {
+                text: "Design Patent No. 38,379 represents one of many design innovations by women inventors in the early 1900s. These design patents protected the aesthetic and ornamental aspects of inventions, showing women's influence on both form and function!",
+                source: "U.S. Design Patent No. 38,379",
+                link: "https://patents.google.com/patent/USD38379S"
+            },
+            {
+                text: "Mabel Marie Kline patented a Catamenial Skirt-Protector on October 11, 1910 (Patent No. 971,680). This practical invention addressed women's health and hygiene needs, showing how women inventors understood and solved problems other inventors overlooked!",
+                source: "U.S. Patent No. 971,680 (1910)",
+                link: "https://patents.google.com/patent/US971680A"
+            },
+            {
+                text: "Patent No. 799,390 from the early 1900s represents another innovation in women's practical inventions. Women inventors of this era were prolific, creating solutions for everyday challenges in clothing, household management, and personal care!",
+                source: "U.S. Patent No. 799,390",
+                link: "https://patents.google.com/patent/US799390A"
+            },
+            {
+                text: "Patent No. 888,550 exemplifies the technical sophistication of women inventors in the early 20th century. These inventions often combined mechanical ingenuity with practical understanding of user needs!",
+                source: "U.S. Patent No. 888,550",
+                link: "https://patents.google.com/patent/US888550A"
+            },
+            {
+                text: "Design Patent No. 9,230 is one of the earliest design patents, showing that women were innovating in aesthetic and ornamental design from the very beginning of the U.S. patent system!",
+                source: "U.S. Design Patent No. 9,230",
+                link: "https://patents.google.com/patent/USD9230S"
+            },
+            {
+                text: "Patent No. 747,704 from 1903 represents innovations during a pivotal time when women were increasingly entering the workforce and creating inventions to support both professional and domestic life!",
+                source: "U.S. Patent No. 747,704 (1903)",
+                link: "https://patents.google.com/patent/US747704A"
+            },
+            {
+                text: "Patent No. 778,077 demonstrates the continued innovation by women inventors in the early 1900s. This era saw women patenting everything from industrial machinery to household conveniences!",
+                source: "U.S. Patent No. 778,077",
+                link: "https://patents.google.com/patent/US778077A"
+            },
+            {
+                text: "Patent No. 882,675 is another example of women's technical contributions during the Progressive Era, when social changes were creating new opportunities for women inventors and entrepreneurs!",
+                source: "U.S. Patent No. 882,675",
+                link: "https://patents.google.com/patent/US882675A"
+            },
+            {
+                text: "Patent No. 917,515 from 1909 shows how women inventors were active throughout the first decade of the 20th century, a time of rapid technological change and innovation!",
+                source: "U.S. Patent No. 917,515 (1909)",
+                link: "https://patents.google.com/patent/US917515A"
+            },
+            {
+                text: "Patent No. 847,495 represents innovations in the mid-1900s when women were developing increasingly sophisticated technical solutions to both industrial and domestic challenges!",
+                source: "U.S. Patent No. 847,495",
+                link: "https://patents.google.com/patent/US847495A"
+            },
+            {
+                text: "Patent No. 947,681 from 1910 demonstrates that women inventors were securing patents at a steady rate throughout this decade, contributing to America's rapid industrialization!",
+                source: "U.S. Patent No. 947,681 (1910)",
+                link: "https://patents.google.com/patent/US947681A"
+            },
+            {
+                text: "Patent No. 985,735 from 1911 shows women's continued innovation into the 1910s, a decade that would see massive social changes including the women's suffrage movement!",
+                source: "U.S. Patent No. 985,735 (1911)",
+                link: "https://patents.google.com/patent/US985735A"
+            },
+            {
+                text: "Patent No. 739,662 from 1903 is part of a wave of women's inventions during the turn of the century, when new technologies and social movements were creating unprecedented opportunities!",
+                source: "U.S. Patent No. 739,662 (1903)",
+                link: "https://patents.google.com/patent/US739662A"
+            },
+            {
+                text: "Patent No. 946,969 from 1910 exemplifies the diverse range of inventions women were patenting, from mechanical devices to design innovations to practical household solutions!",
+                source: "U.S. Patent No. 946,969 (1910)",
+                link: "https://patents.google.com/patent/US946969A"
+            },
+            {
+                text: "Patent No. 784,535 represents another contribution to the growing body of women's patents in the early 1900s, showing their increasing participation in the formal innovation economy!",
+                source: "U.S. Patent No. 784,535",
+                link: "https://patents.google.com/patent/US784535A"
+            },
+            {
+                text: "Patent No. 977,455 from 1910 is one of many patents secured by women inventors during this productive decade of American innovation and social reform!",
+                source: "U.S. Patent No. 977,455 (1910)",
+                link: "https://patents.google.com/patent/US977455A"
+            },
+            {
+                text: "Patent No. 643,754 from 1900 marks the turn of the century, when women's inventions were helping to shape the modern era's technologies and conveniences!",
+                source: "U.S. Patent No. 643,754 (1900)",
+                link: "https://patents.google.com/patent/US643754A"
+            },
+            {
+                text: "Patent No. 999,263 from 1911 shows that women inventors were actively contributing to the patent system even as they fought for basic political rights like the vote!",
+                source: "U.S. Patent No. 999,263 (1911)",
+                link: "https://patents.google.com/patent/US999263A"
+            },
+            {
+                text: "Patent No. 1,118,913 from 1914 represents innovations on the eve of World War I, which would dramatically change women's roles in industry and technology!",
+                source: "U.S. Patent No. 1,118,913 (1914)",
+                link: "https://patents.google.com/patent/US1118913A"
+            },
+            {
+                text: "Patent No. 1,406,862 from the 1920s shows women's continued innovation into the post-WWI era, when they had proven their capabilities in wartime industries!",
+                source: "U.S. Patent No. 1,406,862 (1920s)",
+                link: "https://patents.google.com/patent/US1406862A"
+            },
+            {
+                text: "Patent No. 1,209,018 from 1916 represents innovations during WWI, when women were taking on unprecedented roles in manufacturing and industry while men served in the military!",
+                source: "U.S. Patent No. 1,209,018 (1916)",
+                link: "https://patents.google.com/patent/US1209018A"
+            }];
+
+            const total = patentData.length;
+            let loaded = 0;
+
+            for (const patent of patentData) {
+                const movement = generateMovementPseudocode(patent.text);
+                
+                await messagesRef.push({
+                    text: patent.text,
+                    movement: movement,
+                    source: patent.source,
+                    link: patent.link,
+                    userName: 'CAREbot Database',
+                    userColor: '#e91e63',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                loaded++;
+                const percent = Math.round((loaded / total) * 100);
+                progressFill.style.width = percent + '%';
+                progressFill.textContent = percent + '%';
+
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+
+            alert(`Successfully loaded ${total} patent records with movement instructions!`);
+            closeLoadModal();
+        }
+
+        function toggleAutoSpeak() {
+            autoSpeak = !autoSpeak;
+            const btn = document.getElementById('autoSpeakBtn');
+            btn.textContent = autoSpeak ? '🔊 Auto-Speak: ON' : '🔇 Auto-Speak: OFF';
+        }
+
+        function showLoadModal() {
+            document.getElementById('loadModal').classList.add('active');
+        }
+
+        function closeLoadModal() {
+            document.getElementById('loadModal').classList.remove('active');
+            const progress = document.getElementById('loadProgress');
+            if (progress) progress.style.display = 'none';
+        }
+
+        function showResetModal() {
+            document.getElementById('resetModal').classList.add('active');
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.remove('active');
+        }
+
+        function confirmReset() {
+            if (!messagesRef) return;
+            messagesRef.remove().then(() => {
+                alert('All messages have been reset!');
+                closeResetModal();
+                document.getElementById('infoOutput').innerHTML = '<div class="loading">No messages yet. Start contributing!</div>';
+                document.getElementById('movementOutput').innerHTML = '<div class="loading">Waiting for contributions...</div>';
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (onlineRef && currentUser) {
+                onlineRef.child(currentUser.replace(/[.#$[\]]/g, '_')).remove();
+            }
+            window.speechSynthesis.cancel();
+        });
+    </script>
+</body>
+</html>
