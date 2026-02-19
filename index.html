@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAREbot Collaborative Q&A</title>
+    <title>CAREbot Test - No Firebase</title>
     <style>
         * {
             margin: 0;
@@ -31,48 +31,6 @@
             text-align: center;
             font-size: 1.3em;
             font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .admin-controls {
-            display: flex;
-            gap: 10px;
-        }
-
-        .admin-btn {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            color: white;
-            border-radius: 20px;
-            font-size: 0.8em;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .admin-btn:hover {
-            background: white;
-            color: #880e4f;
-        }
-
-        .user-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 20px;
-            text-align: center;
-            color: white;
-            font-size: 0.9em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .online-count {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
         }
 
         .greeting {
@@ -104,9 +62,6 @@
             padding: 15px;
             border-radius: 10px 10px 0 0;
             font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .panel-header.movement {
@@ -122,40 +77,13 @@
         }
 
         .message-pair {
-            animation: slideIn 0.4s ease-out;
             margin-bottom: 25px;
+            animation: slideIn 0.4s ease-out;
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message-header {
-            font-size: 0.85em;
-            color: #666;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .user-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 0.8em;
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .user-question {
@@ -166,7 +94,6 @@
             margin-bottom: 12px;
             display: inline-block;
             max-width: 85%;
-            font-size: 0.95em;
         }
 
         .info-content {
@@ -177,6 +104,7 @@
             color: #333;
             border-left: 4px solid #e91e63;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
         }
 
         .info-source {
@@ -192,10 +120,6 @@
             text-decoration: none;
         }
 
-        .info-source a:hover {
-            text-decoration: underline;
-        }
-
         .movement-content {
             padding: 15px;
             border-radius: 10px;
@@ -205,33 +129,13 @@
             border-left: 4px solid #ab47bc;
             font-family: 'Courier New', monospace;
             white-space: pre-wrap;
-            position: relative;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .speak-icon {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-            font-size: 1.1em;
-            opacity: 0.6;
-            transition: opacity 0.3s;
-            background: rgba(255, 255, 255, 0.3);
-            padding: 5px 10px;
-            border-radius: 15px;
-        }
-
-        .speak-icon:hover {
-            opacity: 1;
-            background: rgba(255, 255, 255, 0.5);
         }
 
         .input-section {
             background: white;
             padding: 20px;
             border-radius: 0 0 15px 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
 
         .input-row {
@@ -247,7 +151,6 @@
             border-radius: 25px;
             font-size: 1em;
             outline: none;
-            transition: border-color 0.3s;
         }
 
         input[type="text"]:focus {
@@ -263,22 +166,11 @@
             font-size: 1em;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         button:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
-        }
-
-        .disclaimer {
-            text-align: center;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            margin-top: 15px;
-            font-size: 0.85em;
-            color: #666;
         }
 
         .empty-state {
@@ -287,93 +179,30 @@
             color: #999;
         }
 
-        .empty-state h3 {
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .timestamp {
-            font-size: 0.75em;
-            color: #999;
-            margin-left: auto;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .modal-content h3 {
-            color: #880e4f;
-            margin-bottom: 20px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .cancel-btn {
-            background: linear-gradient(135deg, #757575 0%, #424242 100%);
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #e91e63;
-            border-radius: 4px;
-        }
-
-        @media (max-width: 968px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
+        #debugLog {
+            background: #333;
+            color: #0f0;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.85em;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <span>💡 CAREbot Collaborative Q&A</span>
-            <div class="admin-controls">
-                <button class="admin-btn" onclick="showResetModal()">🔄 Reset All</button>
+            💡 CAREbot Collaborative Q&A
+            <div style="font-size: 0.7em; font-weight: normal; margin-top: 5px;">
+                <span id="onlineCount">👥 Connecting...</span>
             </div>
         </div>
 
-        <div class="user-info">
-            <span id="userDisplay">Enter your name below to start</span>
-            <span class="online-count" id="onlineCount">👥 0 online</span>
-        </div>
-
         <div class="greeting">
-            Ask questions about women inventors - everyone sees the same answers with both patent information and movement instructions!
+            Ask questions about women inventors - everyone sees the same answers! (With Firebase collaboration)
         </div>
 
         <div class="main-content">
@@ -383,8 +212,7 @@
                 </div>
                 <div class="messages-area" id="infoOutput">
                     <div class="empty-state">
-                        <h3>🔍 Waiting for Questions</h3>
-                        <p>Ask about women inventors below</p>
+                        <h3>Type a question below</h3>
                     </div>
                 </div>
             </div>
@@ -395,8 +223,7 @@
                 </div>
                 <div class="messages-area" id="movementOutput">
                     <div class="empty-state">
-                        <h3>💃 Movement Awaits</h3>
-                        <p>Choreography will appear here</p>
+                        <h3>Movement will appear here</h3>
                     </div>
                 </div>
             </div>
@@ -404,28 +231,13 @@
 
         <div class="input-section">
             <div class="input-row">
-                <input type="text" id="userName" placeholder="Your name..." maxlength="20">
+                <input type="text" id="userName" placeholder="Your name..." value="Tester">
             </div>
             <div class="input-row">
-                <input type="text" id="userQuestion" placeholder="Ask about women inventors, machines, textiles, computing, space..." autocomplete="off">
+                <input type="text" id="userQuestion" placeholder="Ask: Katherine Johnson, Mary Winter, sewing machines, space, etc..." autocomplete="off">
                 <button onclick="askQuestion()">Ask</button>
             </div>
-        </div>
-
-        <div class="disclaimer">
-            All users see the same Q&A pairs in real-time. Click 🔊 to hear movements read aloud.
-        </div>
-    </div>
-
-    <!-- Reset Modal -->
-    <div id="resetModal" class="modal">
-        <div class="modal-content">
-            <h3>⚠️ Reset All Messages?</h3>
-            <p>This will permanently delete all Q&A pairs from the database. This action cannot be undone.</p>
-            <div class="modal-buttons">
-                <button class="cancel-btn" onclick="closeResetModal()">Cancel</button>
-                <button onclick="confirmReset()">Reset All</button>
-            </div>
+            <div id="debugLog"></div>
         </div>
     </div>
 
@@ -434,7 +246,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
-        // Firebase configuration - USE YOUR CREDENTIALS
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBK9wTaCHmQAorUOch1LNENU7rJjfyDoCA",
             authDomain: "womanasinventor.firebaseapp.com",
@@ -442,15 +254,79 @@
             projectId: "womanasinventor",
             storageBucket: "womanasinventor.firebasestorage.app",
             messagingSenderId: "290959160470",
-            appId: "1:290959160470:web:a9025db53ddde2ce117eb7",
-            measurementId: "G-QFV8TEZDWN"
+            appId: "1:290959160470:web:a9025db53ddde2ce117eb7"
         };
 
         let app, database, messagesRef, onlineRef;
         let currentUser = localStorage.getItem('carebotUserName') || '';
         let userColor = localStorage.getItem('carebotUserColor') || generateColor();
+        let useFirebase = true;
 
-        // Complete patent database - all 115+ responses
+        // Try to initialize Firebase
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            messagesRef = database.ref('qaMessages');
+            onlineRef = database.ref('online');
+            
+            log('Firebase initialized successfully');
+            
+            // Track presence
+            if (currentUser) {
+                trackPresence();
+            }
+            
+            // Listen for new Q&A pairs
+            messagesRef.on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                // Only display if it's from someone else (avoid duplicates)
+                if (message.userName !== currentUser || snapshot.key.startsWith('-')) {
+                    displayFromFirebase(message, snapshot.key);
+                }
+            });
+            
+            // Track online users
+            onlineRef.on('value', (snapshot) => {
+                const online = snapshot.val() || {};
+                const count = Object.keys(online).length;
+                document.getElementById('onlineCount').textContent = `👥 ${count} online`;
+            });
+            
+        } catch (error) {
+            log('Firebase error: ' + error.message);
+            log('Running in offline mode');
+            useFirebase = false;
+            document.getElementById('onlineCount').textContent = '📴 Offline mode';
+        }
+
+        function generateColor() {
+            const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            localStorage.setItem('carebotUserColor', color);
+            return color;
+        }
+
+        function trackPresence() {
+            if (!onlineRef || !currentUser) return;
+            const userRef = onlineRef.child(currentUser.replace(/[.#$[\]]/g, '_'));
+            userRef.set({
+                name: currentUser,
+                color: userColor,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            userRef.onDisconnect().remove();
+        }
+
+        // Update user name handler
+        document.getElementById('userName').addEventListener('change', function() {
+            currentUser = this.value.trim();
+            localStorage.setItem('carebotUserName', currentUser);
+            if (currentUser && useFirebase) {
+                trackPresence();
+            }
+        });
+
+        // Sample responses (just 5 for testing)
         const responses = [{
                 text: "Katherine G. Johnson co-authored NASA Technical Note D-233 in 1960, presenting mathematical expressions for determining satellite trajectories and orbital mechanics. Her calculations were critical for placing satellites over selected Earth positions—work that helped launch America into space and proved essential for the space program!",
                 source: "NASA Technical Note D-233 (1960)",
@@ -1021,564 +897,244 @@
                 source: "U.S. Patent No. 1,209,018 (1916)",
                 link: "https://patents.google.com/patent/US1209018A"
             }];
-        ];
 
-        let responseIndex = 0;
+        function log(message) {
+            const logDiv = document.getElementById('debugLog');
+            logDiv.innerHTML += message + '<br>';
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
 
-        try {
-            app = firebase.initializeApp(firebaseConfig);
-            database = firebase.database();
-            messagesRef = database.ref('qaMessages');
-            onlineRef = database.ref('online');
+        // Track recently shown patents to ensure variety
+        let recentlyShown = [];
+        const MAX_RECENT = 20; // Don't repeat the last 20 patents
+
+        function getMatchingResponse(userMessage) {
+            log('Getting random patent (prioritizing variety)...');
             
-            console.log('Firebase initialized successfully');
-            initializeApp();
-        } catch (error) {
-            console.error('Firebase initialization error:', error);
-            document.getElementById('infoOutput').innerHTML = `
-                <div style="padding: 20px; text-align: center;">
-                    <strong>⚠️ Firebase Configuration Error</strong><br><br>
-                    ${error.message}
-                </div>
-            `;
-            document.getElementById('movementOutput').innerHTML = document.getElementById('infoOutput').innerHTML;
-        }
-
-        function generateColor() {
-            const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            localStorage.setItem('carebotUserColor', color);
-            return color;
-        }
-
-        function initializeApp() {
-            if (currentUser) {
-                document.getElementById('userName').value = currentUser;
-                updateUserDisplay();
-                trackPresence();
+            // Filter out recently shown patents
+            let availableResponses = responses.filter((response, index) => {
+                return !recentlyShown.includes(index);
+            });
+            
+            // If we've shown too many, reset the recent list
+            if (availableResponses.length < 10) {
+                log('Resetting recent list - running low on unseen patents');
+                recentlyShown = [];
+                availableResponses = responses;
             }
-
-            document.getElementById('userName').addEventListener('change', function() {
-                currentUser = this.value.trim();
-                localStorage.setItem('carebotUserName', currentUser);
-                updateUserDisplay();
-                if (currentUser) trackPresence();
-            });
-
-            messagesRef.on('child_added', (snapshot) => {
-                const message = snapshot.val();
-                displayQAPair(message, snapshot.key);
-            });
-
-            messagesRef.on('child_removed', (snapshot) => {
-                const infoMsg = document.getElementById('info-' + snapshot.key);
-                const moveMsg = document.getElementById('move-' + snapshot.key);
-                if (infoMsg) infoMsg.remove();
-                if (moveMsg) moveMsg.remove();
-            });
-
-            setTimeout(() => {
-                document.querySelectorAll('.empty-state').forEach(el => el.remove());
-            }, 1000);
-
-            onlineRef.on('value', (snapshot) => {
-                const online = snapshot.val() || {};
-                document.getElementById('onlineCount').textContent = `👥 ${Object.keys(online).length} online`;
-            });
-
-            document.getElementById('userQuestion').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    askQuestion();
-                }
-            });
+            
+            // Pick a random patent from available ones
+            const randomIndex = Math.floor(Math.random() * availableResponses.length);
+            const selectedResponse = availableResponses[randomIndex];
+            
+            // Find the actual index in the full responses array
+            const actualIndex = responses.indexOf(selectedResponse);
+            
+            // Add to recently shown list
+            recentlyShown.push(actualIndex);
+            if (recentlyShown.length > MAX_RECENT) {
+                recentlyShown.shift(); // Remove oldest
+            }
+            
+            log(`Random selection: ${selectedResponse.source.substring(0, 60)}...`);
+            log(`Recently shown: ${recentlyShown.length}/${MAX_RECENT}`);
+            
+            return selectedResponse;
         }
 
-        function updateUserDisplay() {
-            const display = document.getElementById('userDisplay');
-            display.innerHTML = currentUser ? `Asking as: <strong>${currentUser}</strong>` : 'Enter your name below to start';
-        }
-
-        function trackPresence() {
-            if (!currentUser || !onlineRef) return;
-            const userRef = onlineRef.child(currentUser.replace(/[.#$[\]]/g, '_'));
-            userRef.set({
-                name: currentUser,
-                color: userColor,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            userRef.onDisconnect().remove();
-        }
-
-        function generateMovementPseudocode(text, patentInfo) {
+        function generateMovement(text) {
+            log('Generating movement for text...');
+            
             const words = text.toLowerCase();
-            let movements = [];
-
-            // Extract key details from the patent
-            const inventor = extractInventorName(text);
-            const year = text.match(/\b(18|19|20)\d{2}\b/);
-            const invention = extractInventionName(text);
+            let movement = [];
             
-            // Header with specific patent details
-            movements.push(`MOVEMENT SEQUENCE: "${invention || 'Innovation'}"`);
-            movements.push(`INVENTOR: ${inventor || 'Pioneer Woman'}`);
-            if (year) {
-                movements.push(`YEAR: ${year[0]}`);
-                movements.push(`ERA: ${getEraDescription(parseInt(year[0]))}`);
-            }
-            movements.push(`DURATION: ${Math.ceil(text.length / 15)} seconds`);
-            movements.push(`\n=== CHOREOGRAPHIC INSTRUCTIONS ===\n`);
-
-            let stepNumber = 1;
-
-            // Opening gesture - always starts with the inventor's name
-            movements.push(`${stepNumber}. OPENING: Embody the Inventor`);
-            movements.push(`   - Stand centered, grounded`);
-            movements.push(`   - Speak aloud: "${inventor || 'A woman inventor'}"`);
-            movements.push(`   - Feel the weight of history`);
-            stepNumber++;
-
-            // Content-specific movements based on invention type
-            if (words.includes('machine') || words.includes('mechanism') || words.includes('device')) {
-                movements.push(`\n${stepNumber}. MECHANICAL MOTION: The Machine`);
-                movements.push(`   - ROTATE arms like gears (${invention})`);
-                movements.push(`   - Circular motions, alternating directions`);
-                movements.push(`   - Speed increases with complexity`);
-                movements.push(`   - Imagine: ${extractMechanicalDetail(text)}`);
-                stepNumber++;
-            }
-
-            if (words.includes('patent') || words.includes('design')) {
-                movements.push(`\n${stepNumber}. DOCUMENTATION: The Patent`);
-                movements.push(`   - DRAW in the air with precision`);
-                movements.push(`   - Trace technical diagrams`);
-                movements.push(`   - ${extractPatentDetail(text)}`);
-                movements.push(`   - Seal with a stamp gesture`);
-                stepNumber++;
-            }
-
-            if (words.includes('calculat') || words.includes('comput') || words.includes('math')) {
-                movements.push(`\n${stepNumber}. COMPUTATION: Mental Work`);
-                movements.push(`   - TAP fingers sequentially (calculating)`);
-                movements.push(`   - ${extractMathDetail(text)}`);
-                movements.push(`   - Each tap = one calculation`);
-                movements.push(`   - Accelerate to show mental speed`);
-                stepNumber++;
-            }
-
-            if (words.includes('textile') || words.includes('fabric') || words.includes('weav') || words.includes('silk') || words.includes('lace')) {
-                movements.push(`\n${stepNumber}. TEXTILE CREATION: Weaving`);
-                movements.push(`   - WEAVE hands together rhythmically`);
-                movements.push(`   - Creating: ${extractTextileDetail(text)}`);
-                movements.push(`   - Interlace fingers, pull threads`);
-                movements.push(`   - Feel the texture forming`);
-                stepNumber++;
-            }
-
-            if (words.includes('sew') || words.includes('stitch') || words.includes('needle')) {
-                movements.push(`\n${stepNumber}. STITCHING: Needle Work`);
-                movements.push(`   - NEEDLE MOTION: thread through fabric`);
-                movements.push(`   - Working on: ${extractSewingDetail(text)}`);
-                movements.push(`   - In and out, rhythmic precision`);
-                movements.push(`   - Each stitch builds the innovation`);
-                stepNumber++;
-            }
-
-            if (words.includes('space') || words.includes('satellite') || words.includes('orbit') || words.includes('nasa')) {
-                movements.push(`\n${stepNumber}. CELESTIAL MOTION: Space`);
-                movements.push(`   - SPIRAL upward (satellite ascending)`);
-                movements.push(`   - ${extractSpaceDetail(text)}`);
-                movements.push(`   - Arms trace orbital paths`);
-                movements.push(`   - Rising beyond Earth's gravity`);
-                stepNumber++;
-            }
-
-            if (words.includes('type') || words.includes('keyboard')) {
-                movements.push(`\n${stepNumber}. TYPING: Keys and Letters`);
-                movements.push(`   - TYPEWRITER motion: finger strikes`);
-                movements.push(`   - ${extractTypingDetail(text)}`);
-                movements.push(`   - Rhythmic percussion of keys`);
-                movements.push(`   - Letters become words become change`);
-                stepNumber++;
-            }
-
-            if (words.includes('loom')) {
-                movements.push(`\n${stepNumber}. LOOM WORK: Threading`);
-                movements.push(`   - SHUTTLE motion: back and forth`);
-                movements.push(`   - ${extractLoomDetail(text)}`);
-                movements.push(`   - Warp and weft intersecting`);
-                movements.push(`   - Building fabric of innovation`);
-                stepNumber++;
-            }
-
-            // Challenge/resistance movement - if mentions barriers
-            if (words.includes('married') || words.includes('husband') || words.includes('ridicule') || words.includes('barrier') || words.includes('denied')) {
-                movements.push(`\n${stepNumber}. RESISTANCE: Breaking Barriers`);
-                movements.push(`   - PUSH against invisible walls`);
-                movements.push(`   - Obstacle: ${extractBarrier(text)}`);
-                movements.push(`   - Strong, persistent pressure`);
-                movements.push(`   - Break through with determination`);
-                stepNumber++;
-            }
-
-            // Historical context with year
-            if (year) {
-                const yearNum = parseInt(year[0]);
-                const paces = Math.floor((yearNum - 1800) / 20);
-                movements.push(`\n${stepNumber}. TIME TRAVEL: Walking Through History`);
-                movements.push(`   - STEP forward ${paces} paces (${year[0]})`);
-                movements.push(`   - Each pace = 20 years of progress`);
-                movements.push(`   - Era: ${getEraDescription(yearNum)}`);
-                movements.push(`   - Feel the decades passing`);
-                stepNumber++;
-            }
-
-            // Innovation gesture
-            if (words.includes('invent') || words.includes('creat') || words.includes('discover')) {
-                movements.push(`\n${stepNumber}. CREATION: The Eureka Moment`);
-                movements.push(`   - REACH forward: bringing idea into reality`);
-                movements.push(`   - Innovation: ${invention || 'new creation'}`);
-                movements.push(`   - Hands open, palms up, offering`);
-                movements.push(`   - The moment of breakthrough`);
-                stepNumber++;
-            }
-
-            // Impact/legacy movement
-            movements.push(`\n${stepNumber}. IMPACT: Ripples of Change`);
-            movements.push(`   - CRESCENDO gesture outward`);
-            movements.push(`   - Impact: ${extractImpact(text)}`);
-            movements.push(`   - Begin small, expand infinitely`);
-            movements.push(`   - This invention changed lives`);
-            stepNumber++;
-
-            // Closing with specific tribute
-            movements.push(`\n${stepNumber}. CLOSING: Honor the Legacy`);
-            movements.push(`   - HOLD final pose for 5 seconds`);
-            movements.push(`   - Speak aloud: "${inventor || 'She'} invented ${invention || 'this'}"`);
-            movements.push(`   - Place hand over heart`);
-            movements.push(`   - Remember: her name, her work, her impact`);
-
-            movements.push(`\n=== END SEQUENCE ===`);
-            movements.push(`\nPERFORMANCE NOTE: Throughout this sequence, let the specific`);
-            movements.push(`details of ${inventor}'s work inform your movements. Every gesture`);
-            movements.push(`represents real innovation, real struggle, real triumph.`);
-
-            return movements.join('\n');
-        }
-
-        // Helper functions to extract specific details
-        function extractInventorName(text) {
-            // Look for common name patterns
+            // Extract inventor name
+            let inventor = 'Unknown Inventor';
             const namePatterns = [
                 /(\w+\s+\w+\.\s+\w+)\s+(patented|invented|co-authored)/i,
                 /(\w+\s+\w+)\s+(patented|invented|co-authored)/i,
-                /(Mrs?\.|Miss|Madam|Madame)\s+(\w+\s+\w+)/i
             ];
             
             for (const pattern of namePatterns) {
                 const match = text.match(pattern);
                 if (match) {
-                    return match[1] || (match[2] + ' ' + match[3]);
-                }
-            }
-
-            // Check for goddess/historical names
-            if (text.includes('Isis')) return 'Isis (Ancient Egypt)';
-            if (text.includes('Minerva')) return 'Minerva (Ancient Greece)';
-            if (text.includes('Si-ling-chi')) return 'Si-ling-chi (Ancient China)';
-            
-            return 'An Innovative Woman';
-        }
-
-        function extractInventionName(text) {
-            const inventionPatterns = [
-                /patented (?:a|an|the)\s+([^,\.]+?)(?:\s+on|\s+\()/i,
-                /invented (?:a|an|the)\s+([^,\.]+?)(?:\s+|\.)/i,
-                /invention of ([^,\.]+)/i
-            ];
-            
-            for (const pattern of inventionPatterns) {
-                const match = text.match(pattern);
-                if (match) {
-                    return match[1].trim();
+                    inventor = match[1];
+                    break;
                 }
             }
             
-            return 'Innovation';
-        }
-
-        function extractMechanicalDetail(text) {
-            if (text.includes('ratchet')) return 'ratchet wheels clicking into place';
-            if (text.includes('gear')) return 'interlocking gears turning';
-            if (text.includes('spring')) return 'spring mechanisms releasing energy';
-            if (text.includes('pawl')) return 'pawls catching and holding';
-            return 'mechanical components working in harmony';
-        }
-
-        function extractPatentDetail(text) {
-            const patentMatch = text.match(/Patent No\.\s+([\d,]+)/i);
-            if (patentMatch) return `Draw Patent No. ${patentMatch[1]} in the air`;
-            return 'Sign the patent documents';
-        }
-
-        function extractMathDetail(text) {
-            if (text.includes('orbital')) return 'Calculating orbital trajectories';
-            if (text.includes('satellite')) return 'Computing satellite positions';
-            if (text.includes('equation')) return 'Solving complex equations';
-            if (text.includes('addition')) return 'Adding columns of numbers';
-            return 'Processing mathematical calculations';
-        }
-
-        function extractTextileDetail(text) {
-            if (text.includes('silk')) return 'silk threads from silkworms';
-            if (text.includes('lace')) return 'delicate lacework patterns';
-            if (text.includes('gauze')) return 'transparent gauze fabric';
-            if (text.includes('Cashmere')) return 'precious Cashmere wool';
-            return 'woven fabric';
-        }
-
-        function extractSewingDetail(text) {
-            if (text.includes('Blanchard')) return 'industrial sewing machine';
-            if (text.includes('needle')) return 'hollow needle invention';
-            if (text.includes('seam')) return 'perfect seams';
-            return 'garment construction';
-        }
-
-        function extractSpaceDetail(text) {
-            if (text.includes('Johnson')) return 'Katherine Johnson calculating trajectories';
-            if (text.includes('azimuth')) return 'Determining azimuth angles at burnout';
-            if (text.includes('NASA')) return 'NASA space program calculations';
-            return 'Reaching for the stars';
-        }
-
-        function extractTypingDetail(text) {
-            if (text.includes('Typewriter')) return 'mechanical typewriter keys';
-            if (text.includes('keyboard')) return 'keyboard assembly';
-            return 'letters forming words';
-        }
-
-        function extractLoomDetail(text) {
-            if (text.includes('hand weaving')) return 'hand-weaving loom';
-            if (text.includes('industrial')) return 'industrial weaving machine';
-            return 'threads interlacing';
-        }
-
-        function extractBarrier(text) {
-            if (text.includes('married woman')) return 'married women could not own patents';
-            if (text.includes('husband')) return 'husbands controlled inventions';
-            if (text.includes('ridicule')) return 'social ridicule and contempt';
-            return 'systemic barriers';
-        }
-
-        function extractImpact(text) {
-            if (text.includes('millions of dollars')) return 'millions of dollars in value';
-            if (text.includes('thousands')) return 'thousands employed';
-            if (text.includes('incalculable')) return 'incalculable value to humanity';
-            if (text.includes('essential')) return 'essential to civilization';
-            return 'lasting impact on society';
-        }
-
-        function getEraDescription(year) {
-            if (year < 1850) return 'Pre-Industrial Revolution';
-            if (year < 1900) return 'Industrial Age';
-            if (year < 1920) return 'Progressive Era';
-            if (year < 1950) return 'World Wars Era';
-            if (year < 1970) return 'Space Age';
-            return 'Modern Era';
-        }
-
-        function getMatchingResponse(userMessage) {
-            const msg = userMessage.toLowerCase();
-            let selectedResponse;
-            let matchScore = 0;
-
-            // Score-based matching - find the BEST match, not just any match
-            responses.forEach(response => {
-                const responseText = response.text.toLowerCase();
-                const responseSource = response.source.toLowerCase();
-                let score = 0;
-
-                // Exact keyword matches get highest scores
-                
-                // Space/NASA specific
-                if (msg.includes('space') || msg.includes('nasa') || msg.includes('satellite') || msg.includes('orbit') || msg.includes('johnson')) {
-                    if (responseSource.includes('nasa') || responseText.includes('johnson') || responseText.includes('satellite')) {
-                        score += 100;
-                    }
-                    if (responseText.includes('orbital') || responseText.includes('azimuth')) score += 50;
-                }
-
-                // Calculator/computing specific
-                if (msg.includes('calculat') || msg.includes('comput') || msg.includes('adding machine')) {
-                    if (responseText.includes('calculator') || responseText.includes('adding machine') || responseText.includes('computing')) {
-                        score += 100;
-                    }
-                    if (responseText.includes('winter') || responseText.includes('duncan') || responseText.includes('clarke')) score += 50;
-                }
-
-                // Specific inventor name matching
-                if (msg.includes('katherine') || msg.includes('johnson')) {
-                    if (responseText.includes('katherine') && responseText.includes('johnson')) score += 200;
-                }
-                if (msg.includes('mary') && msg.includes('winter')) {
-                    if (responseText.includes('mary') && responseText.includes('winter')) score += 200;
-                }
-                if (msg.includes('blanchard')) {
-                    if (responseText.includes('blanchard')) score += 200;
-                }
-                if (msg.includes('boone')) {
-                    if (responseText.includes('boone')) score += 200;
-                }
-
-                // Sewing machine specific
-                if (msg.includes('sew') || msg.includes('stitch') || msg.includes('needle')) {
-                    if (responseText.includes('sewing') || responseText.includes('needle') || responseText.includes('stitch')) {
-                        score += 100;
-                    }
-                    if (responseText.includes('blanchard')) score += 50;
-                }
-
-                // Typewriter specific
-                if (msg.includes('type') || msg.includes('typewriter') || msg.includes('keyboard')) {
-                    if (responseText.includes('typewriter') || responseText.includes('keyboard') || responseText.includes('type-writing')) {
-                        score += 100;
-                    }
-                }
-
-                // Loom/weaving specific
-                if (msg.includes('loom') || msg.includes('weav')) {
-                    if (responseText.includes('loom') || responseText.includes('weav')) {
-                        score += 100;
-                    }
-                }
-
-                // Textile/fabric specific
-                if (msg.includes('fabric') || msg.includes('textile') || msg.includes('cloth')) {
-                    if (responseText.includes('fabric') || responseText.includes('textile') || responseText.includes('design patent')) {
-                        score += 80;
-                    }
-                }
-
-                // Silk specific
-                if (msg.includes('silk')) {
-                    if (responseText.includes('silk') || responseText.includes('si-ling-chi')) {
-                        score += 100;
-                    }
-                }
-
-                // Lace specific
-                if (msg.includes('lace')) {
-                    if (responseText.includes('lace') || responseText.includes('uttmann')) {
-                        score += 100;
-                    }
-                }
-
-                // Cotton gin specific
-                if (msg.includes('cotton') || msg.includes('gin')) {
-                    if (responseText.includes('cotton') || responseText.includes('greene')) {
-                        score += 100;
-                    }
-                }
-
-                // Ironing board specific
-                if (msg.includes('iron')) {
-                    if (responseText.includes('ironing') || responseText.includes('boone')) {
-                        score += 100;
-                    }
-                }
-
-                // Brassiere specific
-                if (msg.includes('bra') || msg.includes('undergarment')) {
-                    if (responseText.includes('brassiere') || responseText.includes('jacob')) {
-                        score += 100;
-                    }
-                }
-
-                // Ancient/historical
-                if (msg.includes('ancient') || msg.includes('egypt') || msg.includes('greece') || msg.includes('china')) {
-                    if (responseText.includes('isis') || responseText.includes('minerva') || responseText.includes('si-ling-chi') || responseText.includes('ancient')) {
-                        score += 100;
-                    }
-                }
-
-                // Rights/barriers
-                if (msg.includes('rights') || msg.includes('married') || msg.includes('barrier') || msg.includes('husband')) {
-                    if (responseText.includes('married woman') || responseText.includes('husband') || responseText.includes('ridicule')) {
-                        score += 100;
-                    }
-                }
-
-                // Paper bag
-                if (msg.includes('paper') || msg.includes('bag')) {
-                    if (responseText.includes('paper bag') || responseText.includes('maggie knight')) {
-                        score += 100;
-                    }
-                }
-
-                // Number/year matching
-                const userNumbers = msg.match(/\d+/g);
-                if (userNumbers) {
-                    userNumbers.forEach(num => {
-                        if (responseText.includes(num)) {
-                            score += 30;
-                        }
-                    });
-                }
-
-                // Update best match if this score is higher
-                if (score > matchScore) {
-                    matchScore = score;
-                    selectedResponse = response;
-                }
-            });
-
-            // If no good match found (score < 30), use category matching
-            if (matchScore < 30) {
-                let matches = [];
-
-                if (msg.includes('machine')) {
-                    matches = responses.filter(r => r.text.toLowerCase().includes('machine'));
-                } else if (msg.includes('woman') || msg.includes('women')) {
-                    matches = responses.filter(r => 
-                        r.text.toLowerCase().includes('woman') || 
-                        r.text.toLowerCase().includes('women'));
-                } else {
-                    // Truly random fallback
-                    const randomOffset = Math.floor(Math.random() * 10) - 5;
-                    const index = (responseIndex + randomOffset + responses.length) % responses.length;
-                    selectedResponse = responses[index];
-                    responseIndex = (index + 1) % responses.length;
-                    return selectedResponse;
-                }
-
-                if (matches.length > 0) {
-                    selectedResponse = matches[Math.floor(Math.random() * matches.length)];
-                }
+            if (text.includes('Isis')) inventor = 'Isis (Ancient Egypt)';
+            else if (text.includes('Minerva')) inventor = 'Minerva (Ancient Greece)';
+            else if (text.includes('Si-ling-chi')) inventor = 'Si-ling-chi (Ancient China)';
+            
+            // Extract year
+            const yearMatch = text.match(/\b(18|19|20)\d{2}\b/);
+            const year = yearMatch ? yearMatch[0] : '';
+            
+            // Extract invention
+            let invention = 'innovation';
+            const invMatch = text.match(/patented (?:a|an|the)\s+([^,\.]+?)(?:\s+on|\s+\()/i);
+            if (invMatch) invention = invMatch[1].trim();
+            
+            // Build movement sequence
+            movement.push(`MOVEMENT SEQUENCE: ${invention}`);
+            movement.push(`INVENTOR: ${inventor}`);
+            if (year) movement.push(`YEAR: ${year}`);
+            movement.push(`\n=== CHOREOGRAPHIC INSTRUCTIONS ===\n`);
+            
+            let step = 1;
+            
+            // Opening
+            movement.push(`${step}. OPENING: Embody the Inventor`);
+            movement.push(`   - Speak aloud: "${inventor}"`);
+            movement.push(`   - Feel the weight of history`);
+            step++;
+            
+            // Content-specific movements
+            if (words.includes('machine') || words.includes('calculator') || words.includes('device')) {
+                movement.push(`\n${step}. MECHANICAL MOTION`);
+                movement.push(`   - Rotate arms like gears (${invention})`);
+                movement.push(`   - Circular motions, alternating`);
+                step++;
             }
-
-            responseIndex = (responseIndex + 1) % responses.length;
-            return selectedResponse || responses[0];
+            
+            if (words.includes('space') || words.includes('satellite') || words.includes('orbit')) {
+                movement.push(`\n${step}. CELESTIAL MOTION`);
+                movement.push(`   - Spiral upward (satellite ascending)`);
+                movement.push(`   - Arms trace orbital paths`);
+                step++;
+            }
+            
+            if (words.includes('sew') || words.includes('stitch') || words.includes('needle')) {
+                movement.push(`\n${step}. STITCHING MOTION`);
+                movement.push(`   - Needle through fabric gesture`);
+                movement.push(`   - In and out rhythmic pattern`);
+                step++;
+            }
+            
+            if (words.includes('textile') || words.includes('fabric') || words.includes('weav') || words.includes('silk') || words.includes('lace')) {
+                movement.push(`\n${step}. WEAVING MOTION`);
+                movement.push(`   - Interlace fingers rhythmically`);
+                movement.push(`   - Creating fabric`);
+                step++;
+            }
+            
+            if (words.includes('type') || words.includes('keyboard')) {
+                movement.push(`\n${step}. TYPING MOTION`);
+                movement.push(`   - Finger strikes like keys`);
+                movement.push(`   - Rhythmic percussion`);
+                step++;
+            }
+            
+            if (words.includes('comput') || words.includes('calculat')) {
+                movement.push(`\n${step}. COMPUTATION`);
+                movement.push(`   - Tap fingers sequentially`);
+                movement.push(`   - Each tap = one calculation`);
+                step++;
+            }
+            
+            if (words.includes('patent') || words.includes('design')) {
+                movement.push(`\n${step}. DOCUMENTATION`);
+                movement.push(`   - Draw in the air with precision`);
+                const patMatch = text.match(/Patent No\.\s+([\d,]+)/i);
+                if (patMatch) movement.push(`   - Patent No. ${patMatch[1]}`);
+                step++;
+            }
+            
+            // Time travel if year exists
+            if (year) {
+                const yearNum = parseInt(year);
+                const paces = Math.floor((yearNum - 1800) / 20);
+                movement.push(`\n${step}. TIME TRAVEL`);
+                movement.push(`   - Step forward ${paces} paces (${year})`);
+                movement.push(`   - Each pace = 20 years`);
+                step++;
+            }
+            
+            // Closing
+            movement.push(`\n${step}. CLOSING: Honor the Legacy`);
+            movement.push(`   - Hold final pose for 5 seconds`);
+            movement.push(`   - Speak: "${inventor} invented ${invention}"`);
+            movement.push(`   - Remember their contribution`);
+            
+            movement.push(`\n=== END SEQUENCE ===`);
+            
+            return movement.join('\n');
         }
 
-        function displayQAPair(message, messageId) {
+        function askQuestion() {
+            log('=== Ask button clicked ===');
+            
+            const question = document.getElementById('userQuestion').value.trim();
+            const userName = document.getElementById('userName').value.trim();
+            
+            log('Question: ' + question);
+            log('User: ' + userName);
+            
+            if (!userName) {
+                alert('Please enter your name first!');
+                document.getElementById('userName').focus();
+                return;
+            }
+            
+            if (!question) {
+                alert('Please type a question!');
+                return;
+            }
+            
+            // Get matching response
+            const response = getMatchingResponse(question);
+            log('Got response about: ' + response.source);
+            
+            // Generate movement
+            const movement = generateMovement(response.text);
+            log('Generated movement');
+            
+            // Save to Firebase if available
+            if (useFirebase && messagesRef) {
+                messagesRef.push({
+                    question: question,
+                    answerText: response.text,
+                    answerSource: response.source,
+                    answerLink: response.link,
+                    movement: movement,
+                    userName: userName,
+                    userColor: userColor,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    log('Saved to Firebase');
+                }).catch((error) => {
+                    log('Firebase save error: ' + error.message);
+                    // Still display locally even if save fails
+                    displayResults(question, response, movement);
+                });
+            } else {
+                // Offline mode - just display locally
+                displayResults(question, response, movement);
+            }
+            
+            // Clear input
+            document.getElementById('userQuestion').value = '';
+        }
+
+        function displayFromFirebase(message, messageId) {
+            log('Displaying from Firebase: ' + message.question);
+            
             const infoDiv = document.getElementById('infoOutput');
             const moveDiv = document.getElementById('movementOutput');
-
+            
             // Clear empty states
             infoDiv.querySelectorAll('.empty-state').forEach(el => el.remove());
             moveDiv.querySelectorAll('.empty-state').forEach(el => el.remove());
-
-            const timestamp = message.timestamp ? new Date(message.timestamp).toLocaleString() : '';
-            const avatar = (message.userName || 'A').substring(0, 1).toUpperCase();
-
+            
             // Info panel
             const infoPair = document.createElement('div');
             infoPair.className = 'message-pair';
             infoPair.id = 'info-' + messageId;
             infoPair.innerHTML = `
-                <div class="message-header">
-                    <div class="user-avatar" style="background: ${message.userColor};">${avatar}</div>
-                    <strong>${message.userName || 'Anonymous'}</strong>
-                    <span class="timestamp">${timestamp}</span>
+                <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">
+                    <strong style="color: ${message.userColor || '#e91e63'};">${escapeHtml(message.userName || 'Anonymous')}</strong>
                 </div>
                 <div class="user-question">❓ ${escapeHtml(message.question)}</div>
                 <div class="info-content">
@@ -1589,116 +1145,98 @@
                 </div>
             `;
             infoDiv.appendChild(infoPair);
-
+            
             // Movement panel
             const movePair = document.createElement('div');
             movePair.className = 'message-pair';
             movePair.id = 'move-' + messageId;
             movePair.innerHTML = `
-                <div class="message-header">
-                    <div class="user-avatar" style="background: ${message.userColor};">${avatar}</div>
-                    <strong>${message.userName || 'Anonymous'}</strong>
-                    <span class="timestamp">${timestamp}</span>
+                <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">
+                    <strong style="color: ${message.userColor || '#e91e63'};">${escapeHtml(message.userName || 'Anonymous')}</strong>
                 </div>
                 <div class="user-question">❓ ${escapeHtml(message.question)}</div>
-                <div class="movement-content" id="move-content-${messageId}">
-                    <span class="speak-icon" onclick="speakMovement('${messageId}')">🔊 Speak</span>
-                    ${escapeHtml(message.movement)}
-                </div>
+                <div class="movement-content">${escapeHtml(message.movement)}</div>
             `;
             moveDiv.appendChild(movePair);
-
+            
             // Auto-scroll
             infoDiv.scrollTop = infoDiv.scrollHeight;
             moveDiv.scrollTop = moveDiv.scrollHeight;
-        }
-
-        function askQuestion() {
-            const input = document.getElementById('userQuestion');
-            const question = input.value.trim();
-            const userName = document.getElementById('userName').value.trim();
-
-            if (!userName) {
-                alert('Please enter your name first!');
-                document.getElementById('userName').focus();
-                return;
-            }
-
-            if (!question) {
-                alert('Please type a question!');
-                return;
-            }
-
-            if (!messagesRef) {
-                alert('Firebase not initialized.');
-                return;
-            }
-
-            // Get the BEST matching response based on question
-            const response = getMatchingResponse(question);
             
-            // Generate movement with specific patent details embedded
-            const movement = generateMovementPseudocode(response.text, response);
-
-            // Save to Firebase
-            messagesRef.push({
-                question: question,
-                answerText: response.text,
-                answerSource: response.source,
-                answerLink: response.link,
-                movement: movement,
-                userName: userName,
-                userColor: userColor,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            input.value = '';
-            input.focus();
+            // Automatically speak the movement
+            setTimeout(() => {
+                speakMovement(message.movement);
+            }, 500);
         }
 
-        function speakMovement(messageId) {
-            const moveElement = document.getElementById('move-content-' + messageId);
-            if (!moveElement) return;
-
-            const movementText = moveElement.textContent.replace('🔊 Speak', '').trim();
-
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-
-                const utterance = new SpeechSynthesisUtterance(movementText);
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
-                utterance.volume = 1;
-
-                const speakIcon = moveElement.querySelector('.speak-icon');
-                speakIcon.textContent = '⏸️ Speaking...';
-
-                utterance.onend = () => {
-                    speakIcon.textContent = '🔊 Speak';
-                };
-
-                window.speechSynthesis.speak(utterance);
-            } else {
-                alert('Text-to-speech is not supported in your browser.');
+        function speakMovement(movementText) {
+            if (!('speechSynthesis' in window)) {
+                log('Text-to-speech not supported in this browser');
+                return;
             }
+
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(movementText);
+            utterance.rate = 0.85; // Slightly slower for clarity
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            utterance.onstart = () => {
+                log('🔊 Speaking movement instructions...');
+            };
+
+            utterance.onend = () => {
+                log('✅ Finished speaking');
+            };
+
+            utterance.onerror = (event) => {
+                log('⚠️ Speech error: ' + event.error);
+            };
+
+            window.speechSynthesis.speak(utterance);
         }
 
-        function showResetModal() {
-            document.getElementById('resetModal').classList.add('active');
-        }
-
-        function closeResetModal() {
-            document.getElementById('resetModal').classList.remove('active');
-        }
-
-        function confirmReset() {
-            if (!messagesRef) return;
-            messagesRef.remove().then(() => {
-                alert('All Q&A pairs have been reset!');
-                closeResetModal();
-                document.getElementById('infoOutput').innerHTML = '<div class="empty-state"><h3>🔍 Waiting for Questions</h3><p>Ask about women inventors below</p></div>';
-                document.getElementById('movementOutput').innerHTML = '<div class="empty-state"><h3>💃 Movement Awaits</h3><p>Choreography will appear here</p></div>';
-            });
+        function displayResults(question, response, movement) {
+            log('Displaying results...');
+            
+            const infoDiv = document.getElementById('infoOutput');
+            const moveDiv = document.getElementById('movementOutput');
+            
+            // Clear empty states
+            infoDiv.innerHTML = '';
+            moveDiv.innerHTML = '';
+            
+            // Info panel
+            const infoPair = document.createElement('div');
+            infoPair.className = 'message-pair';
+            infoPair.innerHTML = `
+                <div class="user-question">❓ ${escapeHtml(question)}</div>
+                <div class="info-content">
+                    ${escapeHtml(response.text)}
+                    <div class="info-source">
+                        Source: <a href="${response.link}" target="_blank">${response.source}</a>
+                    </div>
+                </div>
+            `;
+            infoDiv.appendChild(infoPair);
+            
+            // Movement panel
+            const movePair = document.createElement('div');
+            movePair.className = 'message-pair';
+            movePair.innerHTML = `
+                <div class="user-question">❓ ${escapeHtml(question)}</div>
+                <div class="movement-content">${escapeHtml(movement)}</div>
+            `;
+            moveDiv.appendChild(movePair);
+            
+            log('Display complete!');
+            
+            // Automatically speak the movement after a short delay
+            setTimeout(() => {
+                speakMovement(movement);
+            }, 500);
         }
 
         function escapeHtml(text) {
@@ -1707,12 +1245,26 @@
             return div.innerHTML;
         }
 
+        // Enter key handler
+        document.getElementById('userQuestion').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                askQuestion();
+            }
+        });
+
+        // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             if (onlineRef && currentUser) {
                 onlineRef.child(currentUser.replace(/[.#$[\]]/g, '_')).remove();
             }
-            window.speechSynthesis.cancel();
+            // Stop any ongoing speech
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
         });
+
+        // Initial log
+        log('System ready. Type a question and click Ask.');
     </script>
 </body>
 </html>
