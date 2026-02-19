@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAREbot Movement Translator</title>
+    <title>CAREbot Collaborative Q&A</title>
     <style>
         * {
             margin: 0;
@@ -75,20 +75,27 @@
             border-radius: 15px;
         }
 
+        .greeting {
+            background: white;
+            padding: 15px 20px;
+            text-align: center;
+            color: #333;
+            font-size: 0.95em;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             background: white;
             padding: 20px;
-            border-radius: 0 0 15px 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-height: 600px;
         }
 
         .output-panel {
             display: flex;
             flex-direction: column;
-            height: 600px;
         }
 
         .panel-header {
@@ -106,53 +113,27 @@
             background: linear-gradient(135deg, #ab47bc 0%, #6a1b9a 100%);
         }
 
-        .speaker-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: all 0.3s;
-        }
-
-        .speaker-btn:hover {
-            background: white;
-            color: #880e4f;
-        }
-
-        .speaker-btn.speaking {
-            background: white;
-            color: #880e4f;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
         .messages-area {
             flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 20px;
             background: #f5f5f5;
+            border-radius: 0 0 10px 10px;
         }
 
         .message-pair {
-            margin-bottom: 20px;
             animation: slideIn 0.4s ease-out;
+            margin-bottom: 25px;
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateX(-20px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateY(0);
             }
         }
 
@@ -177,19 +158,46 @@
             font-size: 0.8em;
         }
 
-        .message-content {
-            padding: 12px 16px;
+        .user-question {
+            background: linear-gradient(135deg, #f06292 0%, #c2185b 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            display: inline-block;
+            max-width: 85%;
+            font-size: 0.95em;
+        }
+
+        .info-content {
+            padding: 15px;
             border-radius: 10px;
             line-height: 1.6;
             background: white;
             color: #333;
             border-left: 4px solid #e91e63;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 10px;
+        }
+
+        .info-source {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .info-source a {
+            color: #e91e63;
+            text-decoration: none;
+        }
+
+        .info-source a:hover {
+            text-decoration: underline;
         }
 
         .movement-content {
-            padding: 12px 16px;
+            padding: 15px;
             border-radius: 10px;
             line-height: 1.8;
             background: #f3e5f5;
@@ -198,6 +206,7 @@
             font-family: 'Courier New', monospace;
             white-space: pre-wrap;
             position: relative;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .speak-icon {
@@ -205,20 +214,23 @@
             top: 10px;
             right: 10px;
             cursor: pointer;
-            font-size: 1.2em;
+            font-size: 1.1em;
             opacity: 0.6;
             transition: opacity 0.3s;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 5px 10px;
+            border-radius: 15px;
         }
 
         .speak-icon:hover {
             opacity: 1;
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .input-section {
             background: white;
             padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
+            border-radius: 0 0 15px 15px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
 
@@ -228,30 +240,22 @@
             margin-bottom: 10px;
         }
 
-        input[type="text"],
-        textarea {
+        input[type="text"] {
             flex: 1;
-            padding: 12px 16px;
+            padding: 15px 20px;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 25px;
             font-size: 1em;
             outline: none;
             transition: border-color 0.3s;
-            font-family: inherit;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        input[type="text"]:focus,
-        textarea:focus {
+        input[type="text"]:focus {
             border-color: #e91e63;
         }
 
         button {
-            padding: 12px 30px;
+            padding: 15px 35px;
             background: linear-gradient(135deg, #e91e63 0%, #880e4f 100%);
             color: white;
             border: none;
@@ -267,10 +271,6 @@
             box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
         .disclaimer {
             text-align: center;
             padding: 15px;
@@ -281,17 +281,21 @@
             color: #666;
         }
 
-        ::-webkit-scrollbar {
-            width: 8px;
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 10px;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #e91e63;
-            border-radius: 4px;
+        .timestamp {
+            font-size: 0.75em;
+            color: #999;
+            margin-left: auto;
         }
 
         .modal {
@@ -334,16 +338,17 @@
             background: linear-gradient(135deg, #757575 0%, #424242 100%);
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        .timestamp {
-            font-size: 0.75em;
-            color: #999;
-            margin-left: auto;
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e91e63;
+            border-radius: 4px;
         }
 
         @media (max-width: 968px) {
@@ -356,38 +361,43 @@
 <body>
     <div class="container">
         <div class="header">
-            <span>💡 CAREbot Movement Translator</span>
+            <span>💡 CAREbot Collaborative Q&A</span>
             <div class="admin-controls">
-                <button class="admin-btn" onclick="showLoadModal()">📥 Load Patents</button>
-                <button class="admin-btn" onclick="toggleAutoSpeak()">
-                    <span id="autoSpeakBtn">🔇 Auto-Speak: OFF</span>
-                </button>
                 <button class="admin-btn" onclick="showResetModal()">🔄 Reset All</button>
             </div>
         </div>
 
-        <div class="user-info" style="background: white; color: #333; border-radius: 0;">
+        <div class="user-info">
             <span id="userDisplay">Enter your name below to start</span>
-            <span class="online-count" id="onlineCount" style="background: #e91e63; color: white;">👥 0 online</span>
+            <span class="online-count" id="onlineCount">👥 0 online</span>
+        </div>
+
+        <div class="greeting">
+            Ask questions about women inventors - everyone sees the same answers with both patent information and movement instructions!
         </div>
 
         <div class="main-content">
             <div class="output-panel">
                 <div class="panel-header">
-                    📝 Information Output
+                    📝 Patent Information
                 </div>
                 <div class="messages-area" id="infoOutput">
-                    <div class="loading">Loading messages...</div>
+                    <div class="empty-state">
+                        <h3>🔍 Waiting for Questions</h3>
+                        <p>Ask about women inventors below</p>
+                    </div>
                 </div>
             </div>
 
             <div class="output-panel">
                 <div class="panel-header movement">
-                    🎭 Movement Pseudocode
-                    <button class="speaker-btn" id="speakAllBtn" onclick="speakAllMovements()">🔊 Speak All</button>
+                    🎭 Movement Instructions
                 </div>
                 <div class="messages-area" id="movementOutput">
-                    <div class="loading">Waiting for contributions...</div>
+                    <div class="empty-state">
+                        <h3>💃 Movement Awaits</h3>
+                        <p>Choreography will appear here</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -397,34 +407,13 @@
                 <input type="text" id="userName" placeholder="Your name..." maxlength="20">
             </div>
             <div class="input-row">
-                <textarea id="messageInput" placeholder="Share information about women inventors..."></textarea>
-            </div>
-            <div class="input-row">
-                <button onclick="sendMessage()">📤 Submit & Generate Movement</button>
+                <input type="text" id="userQuestion" placeholder="Ask about women inventors, machines, textiles, computing, space..." autocomplete="off">
+                <button onclick="askQuestion()">Ask</button>
             </div>
         </div>
 
         <div class="disclaimer">
-            Each contribution generates movement instructions inspired by the content. Click 🔊 to hear instructions read aloud.
-        </div>
-    </div>
-
-    <!-- Load Patents Modal -->
-    <div id="loadModal" class="modal">
-        <div class="modal-content">
-            <h3>📥 Load Patent Database</h3>
-            <p>This will load 115+ responses about women inventors into the database and generate movement instructions for each.</p>
-            <p style="color: #d32f2f; margin: 15px 0;"><strong>Note:</strong> This will add to existing messages.</p>
-            <div id="loadProgress" style="display: none;">
-                <div style="width: 100%; height: 30px; background: #e0e0e0; border-radius: 15px; overflow: hidden; margin: 15px 0;">
-                    <div style="height: 100%; background: linear-gradient(135deg, #e91e63 0%, #880e4f 100%); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;" id="progressFill">0%</div>
-                </div>
-                <p style="text-align: center; color: #666;">Loading patents...</p>
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button style="flex: 1; background: linear-gradient(135deg, #757575 0%, #424242 100%);" onclick="closeLoadModal()">Cancel</button>
-                <button style="flex: 1;" onclick="loadAllPatents()">Load Database</button>
-            </div>
+            All users see the same Q&A pairs in real-time. Click 🔊 to hear movements read aloud.
         </div>
     </div>
 
@@ -432,7 +421,7 @@
     <div id="resetModal" class="modal">
         <div class="modal-content">
             <h3>⚠️ Reset All Messages?</h3>
-            <p>This will permanently delete all messages and movement instructions. This action cannot be undone.</p>
+            <p>This will permanently delete all Q&A pairs from the database. This action cannot be undone.</p>
             <div class="modal-buttons">
                 <button class="cancel-btn" onclick="closeResetModal()">Cancel</button>
                 <button onclick="confirmReset()">Reset All</button>
@@ -445,342 +434,24 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
-        // Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBK9wTaCHmQAorUOch1LNENU7rJjfyDoCA",
-  authDomain: "womanasinventor.firebaseapp.com",
-  projectId: "womanasinventor",
-  storageBucket: "womanasinventor.firebasestorage.app",
-  messagingSenderId: "290959160470",
-  appId: "1:290959160470:web:a9025db53ddde2ce117eb7",
-  measurementId: "G-QFV8TEZDWN"
-};
+        // Firebase configuration - USE YOUR CREDENTIALS
+        const firebaseConfig = {
+            apiKey: "AIzaSyBK9wTaCHmQAorUOch1LNENU7rJjfyDoCA",
+            authDomain: "womanasinventor.firebaseapp.com",
+            databaseURL: "https://womanasinventor-default-rtdb.firebaseio.com",
+            projectId: "womanasinventor",
+            storageBucket: "womanasinventor.firebasestorage.app",
+            messagingSenderId: "290959160470",
+            appId: "1:290959160470:web:a9025db53ddde2ce117eb7",
+            measurementId: "G-QFV8TEZDWN"
+        };
 
         let app, database, messagesRef, onlineRef;
         let currentUser = localStorage.getItem('carebotUserName') || '';
         let userColor = localStorage.getItem('carebotUserColor') || generateColor();
-        let autoSpeak = false;
-        let currentSpeech = null;
 
-        try {
-            app = firebase.initializeApp(firebaseConfig);
-            database = firebase.database();
-            messagesRef = database.ref('movementMessages');
-            onlineRef = database.ref('online');
-            
-            console.log('Firebase initialized successfully');
-            initializeApp();
-        } catch (error) {
-            console.error('Firebase initialization error:', error);
-            document.getElementById('infoOutput').innerHTML = `
-                <div style="padding: 20px; text-align: center;">
-                    <strong>⚠️ Firebase Configuration Required</strong><br><br>
-                    Please configure Firebase credentials.
-                </div>
-            `;
-            document.getElementById('movementOutput').innerHTML = document.getElementById('infoOutput').innerHTML;
-        }
-
-        function generateColor() {
-            const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            localStorage.setItem('carebotUserColor', color);
-            return color;
-        }
-
-        function initializeApp() {
-            if (currentUser) {
-                document.getElementById('userName').value = currentUser;
-                updateUserDisplay();
-                trackPresence();
-            }
-
-            document.getElementById('userName').addEventListener('change', function() {
-                currentUser = this.value.trim();
-                localStorage.setItem('carebotUserName', currentUser);
-                updateUserDisplay();
-                if (currentUser) trackPresence();
-            });
-
-            messagesRef.on('child_added', (snapshot) => {
-                const message = snapshot.val();
-                displayMessage(message, snapshot.key);
-            });
-
-            messagesRef.on('child_removed', (snapshot) => {
-                const infoMsg = document.getElementById('info-' + snapshot.key);
-                const moveMsg = document.getElementById('move-' + snapshot.key);
-                if (infoMsg) infoMsg.remove();
-                if (moveMsg) moveMsg.remove();
-            });
-
-            setTimeout(() => {
-                document.querySelectorAll('.loading').forEach(el => el.remove());
-            }, 1000);
-
-            onlineRef.on('value', (snapshot) => {
-                const online = snapshot.val() || {};
-                document.getElementById('onlineCount').textContent = `👥 ${Object.keys(online).length} online`;
-            });
-
-            document.getElementById('messageInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                    sendMessage();
-                }
-            });
-        }
-
-        function updateUserDisplay() {
-            const display = document.getElementById('userDisplay');
-            display.innerHTML = currentUser ? `Posting as: <strong>${currentUser}</strong>` : 'Enter your name below to start';
-        }
-
-        function trackPresence() {
-            if (!currentUser || !onlineRef) return;
-            const userRef = onlineRef.child(currentUser.replace(/[.#$[\]]/g, '_'));
-            userRef.set({
-                name: currentUser,
-                color: userColor,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            userRef.onDisconnect().remove();
-        }
-
-        function generateMovementPseudocode(text) {
-            // Extract key concepts and generate movement instructions
-            const words = text.toLowerCase();
-            let movements = [];
-
-            // Header
-            movements.push(`MOVEMENT SEQUENCE: "${text.substring(0, 50)}..."`);
-            movements.push(`DURATION: ${Math.ceil(text.length / 20)} seconds`);
-            movements.push(`\nINSTRUCTIONS:`);
-
-            // Generate movements based on content
-            if (words.includes('invent') || words.includes('creat')) {
-                movements.push(`1. REACH forward with both arms`);
-                movements.push(`   - Extend arms fully, palms open`);
-                movements.push(`   - Symbolizes creating something new`);
-            }
-
-            if (words.includes('patent') || words.includes('design')) {
-                movements.push(`2. DRAW in the air`);
-                movements.push(`   - Trace geometric shapes`);
-                movements.push(`   - Represents documenting ideas`);
-            }
-
-            if (words.includes('machine') || words.includes('mechanism') || words.includes('device')) {
-                movements.push(`3. ROTATE arms like gears`);
-                movements.push(`   - Circular motions, alternating directions`);
-                movements.push(`   - Embodies mechanical movement`);
-            }
-
-            if (words.includes('textile') || words.includes('fabric') || words.includes('weav')) {
-                movements.push(`4. WEAVE hands together`);
-                movements.push(`   - Interlace fingers rhythmically`);
-                movements.push(`   - Mimics textile creation`);
-            }
-
-            if (words.includes('comput') || words.includes('calculat')) {
-                movements.push(`5. TAP fingers sequentially`);
-                movements.includes(`   - Like typing or calculating`);
-                movements.push(`   - Represents computation`);
-            }
-
-            if (words.includes('discover') || words.includes('found')) {
-                movements.push(`6. OPEN arms wide`);
-                movements.push(`   - Expand outward from center`);
-                movements.push(`   - Symbolizes discovery and revelation`);
-            }
-
-            if (words.includes('collaborate') || words.includes('together')) {
-                movements.push(`7. CONNECT hands with partner`);
-                movements.push(`   - Join hands or mirror movements`);
-                movements.push(`   - Represents collaboration`);
-            }
-
-            // Year-based movements
-            const yearMatch = text.match(/\b(18|19|20)\d{2}\b/);
-            if (yearMatch) {
-                const year = yearMatch[0];
-                movements.push(`8. TIME marker: ${year}`);
-                movements.push(`   - Step forward ${Math.floor((parseInt(year) - 1800) / 20)} paces`);
-                movements.push(`   - Each pace = 20 years of history`);
-            }
-
-            // Add crescendo movement
-            movements.push(`\n9. CRESCENDO gesture`);
-            movements.push(`   - Begin low, rise gradually`);
-            movements.push(`   - Represent growth and impact`);
-
-            // Closing
-            movements.push(`\n10. HOLD final pose`);
-            movements.push(`   - Freeze position for 3 seconds`);
-            movements.push(`   - Honor the inventor's legacy`);
-
-            movements.push(`\nEND SEQUENCE`);
-
-            return movements.join('\n');
-        }
-
-        function displayMessage(message, messageId) {
-            const infoDiv = document.getElementById('infoOutput');
-            const moveDiv = document.getElementById('movementOutput');
-
-            // Remove loading messages
-            infoDiv.querySelectorAll('.loading').forEach(el => el.remove());
-            moveDiv.querySelectorAll('.loading').forEach(el => el.remove());
-
-            const timestamp = message.timestamp ? new Date(message.timestamp).toLocaleString() : '';
-            const avatar = (message.userName || 'A').substring(0, 1).toUpperCase();
-
-            // Information output
-            const infoPair = document.createElement('div');
-            infoPair.className = 'message-pair';
-            infoPair.id = 'info-' + messageId;
-            infoPair.innerHTML = `
-                <div class="message-header">
-                    <div class="user-avatar" style="background: ${message.userColor};">${avatar}</div>
-                    <strong>${message.userName || 'Anonymous'}</strong>
-                    <span class="timestamp">${timestamp}</span>
-                </div>
-                <div class="message-content">${escapeHtml(message.text)}</div>
-            `;
-            infoDiv.appendChild(infoPair);
-
-            // Movement output
-            const movePair = document.createElement('div');
-            movePair.className = 'message-pair';
-            movePair.id = 'move-' + messageId;
-            movePair.innerHTML = `
-                <div class="message-header">
-                    <div class="user-avatar" style="background: ${message.userColor};">${avatar}</div>
-                    <strong>${message.userName || 'Anonymous'}</strong>
-                    <span class="timestamp">${timestamp}</span>
-                </div>
-                <div class="movement-content">
-                    <span class="speak-icon" onclick="speakMovement('${messageId}')">🔊</span>
-                    ${escapeHtml(message.movement)}
-                </div>
-            `;
-            moveDiv.appendChild(movePair);
-
-            // Auto-scroll
-            infoDiv.scrollTop = infoDiv.scrollHeight;
-            moveDiv.scrollTop = moveDiv.scrollHeight;
-
-            // Auto-speak if enabled
-            if (autoSpeak) {
-                setTimeout(() => speakMovement(messageId), 500);
-            }
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            const userName = document.getElementById('userName').value.trim();
-
-            if (!userName) {
-                alert('Please enter your name first!');
-                document.getElementById('userName').focus();
-                return;
-            }
-
-            if (!message) {
-                alert('Please enter a message!');
-                return;
-            }
-
-            if (!messagesRef) {
-                alert('Firebase not initialized.');
-                return;
-            }
-
-            // Generate movement pseudocode
-            const movement = generateMovementPseudocode(message);
-
-            // Save to Firebase
-            messagesRef.push({
-                text: message,
-                movement: movement,
-                userName: userName,
-                userColor: userColor,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            input.value = '';
-            input.focus();
-        }
-
-        function speakMovement(messageId) {
-            const moveElement = document.getElementById('move-' + messageId);
-            if (!moveElement) return;
-
-            const movementText = moveElement.querySelector('.movement-content').textContent.replace('🔊', '').trim();
-
-            if ('speechSynthesis' in window) {
-                // Cancel any ongoing speech
-                window.speechSynthesis.cancel();
-
-                const utterance = new SpeechSynthesisUtterance(movementText);
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
-                utterance.volume = 1;
-
-                // Highlight during speech
-                const speakIcon = moveElement.querySelector('.speak-icon');
-                speakIcon.style.opacity = '1';
-                speakIcon.textContent = '⏸️';
-
-                utterance.onend = () => {
-                    speakIcon.style.opacity = '0.6';
-                    speakIcon.textContent = '🔊';
-                };
-
-                window.speechSynthesis.speak(utterance);
-            } else {
-                alert('Text-to-speech is not supported in your browser.');
-            }
-        }
-
-        function speakAllMovements() {
-            const movements = document.querySelectorAll('#movementOutput .movement-content');
-            if (movements.length === 0) {
-                alert('No movements to speak!');
-                return;
-            }
-
-            const btn = document.getElementById('speakAllBtn');
-            btn.classList.add('speaking');
-            btn.textContent = '⏸️ Speaking...';
-
-            let allText = 'Reading all movement sequences. ';
-            movements.forEach((move, index) => {
-                allText += `Sequence ${index + 1}. ` + move.textContent.replace('🔊', '').trim() + '. ';
-            });
-
-            const utterance = new SpeechSynthesisUtterance(allText);
-            utterance.rate = 0.9;
-            utterance.onend = () => {
-                btn.classList.remove('speaking');
-                btn.textContent = '🔊 Speak All';
-            };
-
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
-        }
-
-
-        async function loadAllPatents() {
-            if (!messagesRef) {
-                alert('Firebase not initialized.');
-                return;
-            }
-
-            document.getElementById('loadProgress').style.display = 'block';
-            const progressFill = document.getElementById('progressFill');
-
-            const patentData = [{
+        // Complete patent database - all 115+ responses
+        const responses = [{
                 text: "Katherine G. Johnson co-authored NASA Technical Note D-233 in 1960, presenting mathematical expressions for determining satellite trajectories and orbital mechanics. Her calculations were critical for placing satellites over selected Earth positions—work that helped launch America into space and proved essential for the space program!",
                 source: "NASA Technical Note D-233 (1960)",
                 link: "https://ntrs.nasa.gov/citations/19980227091"
@@ -1350,49 +1021,666 @@ const firebaseConfig = {
                 source: "U.S. Patent No. 1,209,018 (1916)",
                 link: "https://patents.google.com/patent/US1209018A"
             }];
+        ];
 
-            const total = patentData.length;
-            let loaded = 0;
+        let responseIndex = 0;
 
-            for (const patent of patentData) {
-                const movement = generateMovementPseudocode(patent.text);
-                
-                await messagesRef.push({
-                    text: patent.text,
-                    movement: movement,
-                    source: patent.source,
-                    link: patent.link,
-                    userName: 'CAREbot Database',
-                    userColor: '#e91e63',
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            messagesRef = database.ref('qaMessages');
+            onlineRef = database.ref('online');
+            
+            console.log('Firebase initialized successfully');
+            initializeApp();
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+            document.getElementById('infoOutput').innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <strong>⚠️ Firebase Configuration Error</strong><br><br>
+                    ${error.message}
+                </div>
+            `;
+            document.getElementById('movementOutput').innerHTML = document.getElementById('infoOutput').innerHTML;
+        }
 
-                loaded++;
-                const percent = Math.round((loaded / total) * 100);
-                progressFill.style.width = percent + '%';
-                progressFill.textContent = percent + '%';
+        function generateColor() {
+            const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#ff9800', '#ff5722'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            localStorage.setItem('carebotUserColor', color);
+            return color;
+        }
 
-                await new Promise(resolve => setTimeout(resolve, 50));
+        function initializeApp() {
+            if (currentUser) {
+                document.getElementById('userName').value = currentUser;
+                updateUserDisplay();
+                trackPresence();
             }
 
-            alert(`Successfully loaded ${total} patent records with movement instructions!`);
-            closeLoadModal();
+            document.getElementById('userName').addEventListener('change', function() {
+                currentUser = this.value.trim();
+                localStorage.setItem('carebotUserName', currentUser);
+                updateUserDisplay();
+                if (currentUser) trackPresence();
+            });
+
+            messagesRef.on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                displayQAPair(message, snapshot.key);
+            });
+
+            messagesRef.on('child_removed', (snapshot) => {
+                const infoMsg = document.getElementById('info-' + snapshot.key);
+                const moveMsg = document.getElementById('move-' + snapshot.key);
+                if (infoMsg) infoMsg.remove();
+                if (moveMsg) moveMsg.remove();
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.empty-state').forEach(el => el.remove());
+            }, 1000);
+
+            onlineRef.on('value', (snapshot) => {
+                const online = snapshot.val() || {};
+                document.getElementById('onlineCount').textContent = `👥 ${Object.keys(online).length} online`;
+            });
+
+            document.getElementById('userQuestion').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    askQuestion();
+                }
+            });
         }
 
-        function toggleAutoSpeak() {
-            autoSpeak = !autoSpeak;
-            const btn = document.getElementById('autoSpeakBtn');
-            btn.textContent = autoSpeak ? '🔊 Auto-Speak: ON' : '🔇 Auto-Speak: OFF';
+        function updateUserDisplay() {
+            const display = document.getElementById('userDisplay');
+            display.innerHTML = currentUser ? `Asking as: <strong>${currentUser}</strong>` : 'Enter your name below to start';
         }
 
-        function showLoadModal() {
-            document.getElementById('loadModal').classList.add('active');
+        function trackPresence() {
+            if (!currentUser || !onlineRef) return;
+            const userRef = onlineRef.child(currentUser.replace(/[.#$[\]]/g, '_'));
+            userRef.set({
+                name: currentUser,
+                color: userColor,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            userRef.onDisconnect().remove();
         }
 
-        function closeLoadModal() {
-            document.getElementById('loadModal').classList.remove('active');
-            const progress = document.getElementById('loadProgress');
-            if (progress) progress.style.display = 'none';
+        function generateMovementPseudocode(text, patentInfo) {
+            const words = text.toLowerCase();
+            let movements = [];
+
+            // Extract key details from the patent
+            const inventor = extractInventorName(text);
+            const year = text.match(/\b(18|19|20)\d{2}\b/);
+            const invention = extractInventionName(text);
+            
+            // Header with specific patent details
+            movements.push(`MOVEMENT SEQUENCE: "${invention || 'Innovation'}"`);
+            movements.push(`INVENTOR: ${inventor || 'Pioneer Woman'}`);
+            if (year) {
+                movements.push(`YEAR: ${year[0]}`);
+                movements.push(`ERA: ${getEraDescription(parseInt(year[0]))}`);
+            }
+            movements.push(`DURATION: ${Math.ceil(text.length / 15)} seconds`);
+            movements.push(`\n=== CHOREOGRAPHIC INSTRUCTIONS ===\n`);
+
+            let stepNumber = 1;
+
+            // Opening gesture - always starts with the inventor's name
+            movements.push(`${stepNumber}. OPENING: Embody the Inventor`);
+            movements.push(`   - Stand centered, grounded`);
+            movements.push(`   - Speak aloud: "${inventor || 'A woman inventor'}"`);
+            movements.push(`   - Feel the weight of history`);
+            stepNumber++;
+
+            // Content-specific movements based on invention type
+            if (words.includes('machine') || words.includes('mechanism') || words.includes('device')) {
+                movements.push(`\n${stepNumber}. MECHANICAL MOTION: The Machine`);
+                movements.push(`   - ROTATE arms like gears (${invention})`);
+                movements.push(`   - Circular motions, alternating directions`);
+                movements.push(`   - Speed increases with complexity`);
+                movements.push(`   - Imagine: ${extractMechanicalDetail(text)}`);
+                stepNumber++;
+            }
+
+            if (words.includes('patent') || words.includes('design')) {
+                movements.push(`\n${stepNumber}. DOCUMENTATION: The Patent`);
+                movements.push(`   - DRAW in the air with precision`);
+                movements.push(`   - Trace technical diagrams`);
+                movements.push(`   - ${extractPatentDetail(text)}`);
+                movements.push(`   - Seal with a stamp gesture`);
+                stepNumber++;
+            }
+
+            if (words.includes('calculat') || words.includes('comput') || words.includes('math')) {
+                movements.push(`\n${stepNumber}. COMPUTATION: Mental Work`);
+                movements.push(`   - TAP fingers sequentially (calculating)`);
+                movements.push(`   - ${extractMathDetail(text)}`);
+                movements.push(`   - Each tap = one calculation`);
+                movements.push(`   - Accelerate to show mental speed`);
+                stepNumber++;
+            }
+
+            if (words.includes('textile') || words.includes('fabric') || words.includes('weav') || words.includes('silk') || words.includes('lace')) {
+                movements.push(`\n${stepNumber}. TEXTILE CREATION: Weaving`);
+                movements.push(`   - WEAVE hands together rhythmically`);
+                movements.push(`   - Creating: ${extractTextileDetail(text)}`);
+                movements.push(`   - Interlace fingers, pull threads`);
+                movements.push(`   - Feel the texture forming`);
+                stepNumber++;
+            }
+
+            if (words.includes('sew') || words.includes('stitch') || words.includes('needle')) {
+                movements.push(`\n${stepNumber}. STITCHING: Needle Work`);
+                movements.push(`   - NEEDLE MOTION: thread through fabric`);
+                movements.push(`   - Working on: ${extractSewingDetail(text)}`);
+                movements.push(`   - In and out, rhythmic precision`);
+                movements.push(`   - Each stitch builds the innovation`);
+                stepNumber++;
+            }
+
+            if (words.includes('space') || words.includes('satellite') || words.includes('orbit') || words.includes('nasa')) {
+                movements.push(`\n${stepNumber}. CELESTIAL MOTION: Space`);
+                movements.push(`   - SPIRAL upward (satellite ascending)`);
+                movements.push(`   - ${extractSpaceDetail(text)}`);
+                movements.push(`   - Arms trace orbital paths`);
+                movements.push(`   - Rising beyond Earth's gravity`);
+                stepNumber++;
+            }
+
+            if (words.includes('type') || words.includes('keyboard')) {
+                movements.push(`\n${stepNumber}. TYPING: Keys and Letters`);
+                movements.push(`   - TYPEWRITER motion: finger strikes`);
+                movements.push(`   - ${extractTypingDetail(text)}`);
+                movements.push(`   - Rhythmic percussion of keys`);
+                movements.push(`   - Letters become words become change`);
+                stepNumber++;
+            }
+
+            if (words.includes('loom')) {
+                movements.push(`\n${stepNumber}. LOOM WORK: Threading`);
+                movements.push(`   - SHUTTLE motion: back and forth`);
+                movements.push(`   - ${extractLoomDetail(text)}`);
+                movements.push(`   - Warp and weft intersecting`);
+                movements.push(`   - Building fabric of innovation`);
+                stepNumber++;
+            }
+
+            // Challenge/resistance movement - if mentions barriers
+            if (words.includes('married') || words.includes('husband') || words.includes('ridicule') || words.includes('barrier') || words.includes('denied')) {
+                movements.push(`\n${stepNumber}. RESISTANCE: Breaking Barriers`);
+                movements.push(`   - PUSH against invisible walls`);
+                movements.push(`   - Obstacle: ${extractBarrier(text)}`);
+                movements.push(`   - Strong, persistent pressure`);
+                movements.push(`   - Break through with determination`);
+                stepNumber++;
+            }
+
+            // Historical context with year
+            if (year) {
+                const yearNum = parseInt(year[0]);
+                const paces = Math.floor((yearNum - 1800) / 20);
+                movements.push(`\n${stepNumber}. TIME TRAVEL: Walking Through History`);
+                movements.push(`   - STEP forward ${paces} paces (${year[0]})`);
+                movements.push(`   - Each pace = 20 years of progress`);
+                movements.push(`   - Era: ${getEraDescription(yearNum)}`);
+                movements.push(`   - Feel the decades passing`);
+                stepNumber++;
+            }
+
+            // Innovation gesture
+            if (words.includes('invent') || words.includes('creat') || words.includes('discover')) {
+                movements.push(`\n${stepNumber}. CREATION: The Eureka Moment`);
+                movements.push(`   - REACH forward: bringing idea into reality`);
+                movements.push(`   - Innovation: ${invention || 'new creation'}`);
+                movements.push(`   - Hands open, palms up, offering`);
+                movements.push(`   - The moment of breakthrough`);
+                stepNumber++;
+            }
+
+            // Impact/legacy movement
+            movements.push(`\n${stepNumber}. IMPACT: Ripples of Change`);
+            movements.push(`   - CRESCENDO gesture outward`);
+            movements.push(`   - Impact: ${extractImpact(text)}`);
+            movements.push(`   - Begin small, expand infinitely`);
+            movements.push(`   - This invention changed lives`);
+            stepNumber++;
+
+            // Closing with specific tribute
+            movements.push(`\n${stepNumber}. CLOSING: Honor the Legacy`);
+            movements.push(`   - HOLD final pose for 5 seconds`);
+            movements.push(`   - Speak aloud: "${inventor || 'She'} invented ${invention || 'this'}"`);
+            movements.push(`   - Place hand over heart`);
+            movements.push(`   - Remember: her name, her work, her impact`);
+
+            movements.push(`\n=== END SEQUENCE ===`);
+            movements.push(`\nPERFORMANCE NOTE: Throughout this sequence, let the specific`);
+            movements.push(`details of ${inventor}'s work inform your movements. Every gesture`);
+            movements.push(`represents real innovation, real struggle, real triumph.`);
+
+            return movements.join('\n');
+        }
+
+        // Helper functions to extract specific details
+        function extractInventorName(text) {
+            // Look for common name patterns
+            const namePatterns = [
+                /(\w+\s+\w+\.\s+\w+)\s+(patented|invented|co-authored)/i,
+                /(\w+\s+\w+)\s+(patented|invented|co-authored)/i,
+                /(Mrs?\.|Miss|Madam|Madame)\s+(\w+\s+\w+)/i
+            ];
+            
+            for (const pattern of namePatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    return match[1] || (match[2] + ' ' + match[3]);
+                }
+            }
+
+            // Check for goddess/historical names
+            if (text.includes('Isis')) return 'Isis (Ancient Egypt)';
+            if (text.includes('Minerva')) return 'Minerva (Ancient Greece)';
+            if (text.includes('Si-ling-chi')) return 'Si-ling-chi (Ancient China)';
+            
+            return 'An Innovative Woman';
+        }
+
+        function extractInventionName(text) {
+            const inventionPatterns = [
+                /patented (?:a|an|the)\s+([^,\.]+?)(?:\s+on|\s+\()/i,
+                /invented (?:a|an|the)\s+([^,\.]+?)(?:\s+|\.)/i,
+                /invention of ([^,\.]+)/i
+            ];
+            
+            for (const pattern of inventionPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    return match[1].trim();
+                }
+            }
+            
+            return 'Innovation';
+        }
+
+        function extractMechanicalDetail(text) {
+            if (text.includes('ratchet')) return 'ratchet wheels clicking into place';
+            if (text.includes('gear')) return 'interlocking gears turning';
+            if (text.includes('spring')) return 'spring mechanisms releasing energy';
+            if (text.includes('pawl')) return 'pawls catching and holding';
+            return 'mechanical components working in harmony';
+        }
+
+        function extractPatentDetail(text) {
+            const patentMatch = text.match(/Patent No\.\s+([\d,]+)/i);
+            if (patentMatch) return `Draw Patent No. ${patentMatch[1]} in the air`;
+            return 'Sign the patent documents';
+        }
+
+        function extractMathDetail(text) {
+            if (text.includes('orbital')) return 'Calculating orbital trajectories';
+            if (text.includes('satellite')) return 'Computing satellite positions';
+            if (text.includes('equation')) return 'Solving complex equations';
+            if (text.includes('addition')) return 'Adding columns of numbers';
+            return 'Processing mathematical calculations';
+        }
+
+        function extractTextileDetail(text) {
+            if (text.includes('silk')) return 'silk threads from silkworms';
+            if (text.includes('lace')) return 'delicate lacework patterns';
+            if (text.includes('gauze')) return 'transparent gauze fabric';
+            if (text.includes('Cashmere')) return 'precious Cashmere wool';
+            return 'woven fabric';
+        }
+
+        function extractSewingDetail(text) {
+            if (text.includes('Blanchard')) return 'industrial sewing machine';
+            if (text.includes('needle')) return 'hollow needle invention';
+            if (text.includes('seam')) return 'perfect seams';
+            return 'garment construction';
+        }
+
+        function extractSpaceDetail(text) {
+            if (text.includes('Johnson')) return 'Katherine Johnson calculating trajectories';
+            if (text.includes('azimuth')) return 'Determining azimuth angles at burnout';
+            if (text.includes('NASA')) return 'NASA space program calculations';
+            return 'Reaching for the stars';
+        }
+
+        function extractTypingDetail(text) {
+            if (text.includes('Typewriter')) return 'mechanical typewriter keys';
+            if (text.includes('keyboard')) return 'keyboard assembly';
+            return 'letters forming words';
+        }
+
+        function extractLoomDetail(text) {
+            if (text.includes('hand weaving')) return 'hand-weaving loom';
+            if (text.includes('industrial')) return 'industrial weaving machine';
+            return 'threads interlacing';
+        }
+
+        function extractBarrier(text) {
+            if (text.includes('married woman')) return 'married women could not own patents';
+            if (text.includes('husband')) return 'husbands controlled inventions';
+            if (text.includes('ridicule')) return 'social ridicule and contempt';
+            return 'systemic barriers';
+        }
+
+        function extractImpact(text) {
+            if (text.includes('millions of dollars')) return 'millions of dollars in value';
+            if (text.includes('thousands')) return 'thousands employed';
+            if (text.includes('incalculable')) return 'incalculable value to humanity';
+            if (text.includes('essential')) return 'essential to civilization';
+            return 'lasting impact on society';
+        }
+
+        function getEraDescription(year) {
+            if (year < 1850) return 'Pre-Industrial Revolution';
+            if (year < 1900) return 'Industrial Age';
+            if (year < 1920) return 'Progressive Era';
+            if (year < 1950) return 'World Wars Era';
+            if (year < 1970) return 'Space Age';
+            return 'Modern Era';
+        }
+
+        function getMatchingResponse(userMessage) {
+            const msg = userMessage.toLowerCase();
+            let selectedResponse;
+            let matchScore = 0;
+
+            // Score-based matching - find the BEST match, not just any match
+            responses.forEach(response => {
+                const responseText = response.text.toLowerCase();
+                const responseSource = response.source.toLowerCase();
+                let score = 0;
+
+                // Exact keyword matches get highest scores
+                
+                // Space/NASA specific
+                if (msg.includes('space') || msg.includes('nasa') || msg.includes('satellite') || msg.includes('orbit') || msg.includes('johnson')) {
+                    if (responseSource.includes('nasa') || responseText.includes('johnson') || responseText.includes('satellite')) {
+                        score += 100;
+                    }
+                    if (responseText.includes('orbital') || responseText.includes('azimuth')) score += 50;
+                }
+
+                // Calculator/computing specific
+                if (msg.includes('calculat') || msg.includes('comput') || msg.includes('adding machine')) {
+                    if (responseText.includes('calculator') || responseText.includes('adding machine') || responseText.includes('computing')) {
+                        score += 100;
+                    }
+                    if (responseText.includes('winter') || responseText.includes('duncan') || responseText.includes('clarke')) score += 50;
+                }
+
+                // Specific inventor name matching
+                if (msg.includes('katherine') || msg.includes('johnson')) {
+                    if (responseText.includes('katherine') && responseText.includes('johnson')) score += 200;
+                }
+                if (msg.includes('mary') && msg.includes('winter')) {
+                    if (responseText.includes('mary') && responseText.includes('winter')) score += 200;
+                }
+                if (msg.includes('blanchard')) {
+                    if (responseText.includes('blanchard')) score += 200;
+                }
+                if (msg.includes('boone')) {
+                    if (responseText.includes('boone')) score += 200;
+                }
+
+                // Sewing machine specific
+                if (msg.includes('sew') || msg.includes('stitch') || msg.includes('needle')) {
+                    if (responseText.includes('sewing') || responseText.includes('needle') || responseText.includes('stitch')) {
+                        score += 100;
+                    }
+                    if (responseText.includes('blanchard')) score += 50;
+                }
+
+                // Typewriter specific
+                if (msg.includes('type') || msg.includes('typewriter') || msg.includes('keyboard')) {
+                    if (responseText.includes('typewriter') || responseText.includes('keyboard') || responseText.includes('type-writing')) {
+                        score += 100;
+                    }
+                }
+
+                // Loom/weaving specific
+                if (msg.includes('loom') || msg.includes('weav')) {
+                    if (responseText.includes('loom') || responseText.includes('weav')) {
+                        score += 100;
+                    }
+                }
+
+                // Textile/fabric specific
+                if (msg.includes('fabric') || msg.includes('textile') || msg.includes('cloth')) {
+                    if (responseText.includes('fabric') || responseText.includes('textile') || responseText.includes('design patent')) {
+                        score += 80;
+                    }
+                }
+
+                // Silk specific
+                if (msg.includes('silk')) {
+                    if (responseText.includes('silk') || responseText.includes('si-ling-chi')) {
+                        score += 100;
+                    }
+                }
+
+                // Lace specific
+                if (msg.includes('lace')) {
+                    if (responseText.includes('lace') || responseText.includes('uttmann')) {
+                        score += 100;
+                    }
+                }
+
+                // Cotton gin specific
+                if (msg.includes('cotton') || msg.includes('gin')) {
+                    if (responseText.includes('cotton') || responseText.includes('greene')) {
+                        score += 100;
+                    }
+                }
+
+                // Ironing board specific
+                if (msg.includes('iron')) {
+                    if (responseText.includes('ironing') || responseText.includes('boone')) {
+                        score += 100;
+                    }
+                }
+
+                // Brassiere specific
+                if (msg.includes('bra') || msg.includes('undergarment')) {
+                    if (responseText.includes('brassiere') || responseText.includes('jacob')) {
+                        score += 100;
+                    }
+                }
+
+                // Ancient/historical
+                if (msg.includes('ancient') || msg.includes('egypt') || msg.includes('greece') || msg.includes('china')) {
+                    if (responseText.includes('isis') || responseText.includes('minerva') || responseText.includes('si-ling-chi') || responseText.includes('ancient')) {
+                        score += 100;
+                    }
+                }
+
+                // Rights/barriers
+                if (msg.includes('rights') || msg.includes('married') || msg.includes('barrier') || msg.includes('husband')) {
+                    if (responseText.includes('married woman') || responseText.includes('husband') || responseText.includes('ridicule')) {
+                        score += 100;
+                    }
+                }
+
+                // Paper bag
+                if (msg.includes('paper') || msg.includes('bag')) {
+                    if (responseText.includes('paper bag') || responseText.includes('maggie knight')) {
+                        score += 100;
+                    }
+                }
+
+                // Number/year matching
+                const userNumbers = msg.match(/\d+/g);
+                if (userNumbers) {
+                    userNumbers.forEach(num => {
+                        if (responseText.includes(num)) {
+                            score += 30;
+                        }
+                    });
+                }
+
+                // Update best match if this score is higher
+                if (score > matchScore) {
+                    matchScore = score;
+                    selectedResponse = response;
+                }
+            });
+
+            // If no good match found (score < 30), use category matching
+            if (matchScore < 30) {
+                let matches = [];
+
+                if (msg.includes('machine')) {
+                    matches = responses.filter(r => r.text.toLowerCase().includes('machine'));
+                } else if (msg.includes('woman') || msg.includes('women')) {
+                    matches = responses.filter(r => 
+                        r.text.toLowerCase().includes('woman') || 
+                        r.text.toLowerCase().includes('women'));
+                } else {
+                    // Truly random fallback
+                    const randomOffset = Math.floor(Math.random() * 10) - 5;
+                    const index = (responseIndex + randomOffset + responses.length) % responses.length;
+                    selectedResponse = responses[index];
+                    responseIndex = (index + 1) % responses.length;
+                    return selectedResponse;
+                }
+
+                if (matches.length > 0) {
+                    selectedResponse = matches[Math.floor(Math.random() * matches.length)];
+                }
+            }
+
+            responseIndex = (responseIndex + 1) % responses.length;
+            return selectedResponse || responses[0];
+        }
+
+        function displayQAPair(message, messageId) {
+            const infoDiv = document.getElementById('infoOutput');
+            const moveDiv = document.getElementById('movementOutput');
+
+            // Clear empty states
+            infoDiv.querySelectorAll('.empty-state').forEach(el => el.remove());
+            moveDiv.querySelectorAll('.empty-state').forEach(el => el.remove());
+
+            const timestamp = message.timestamp ? new Date(message.timestamp).toLocaleString() : '';
+            const avatar = (message.userName || 'A').substring(0, 1).toUpperCase();
+
+            // Info panel
+            const infoPair = document.createElement('div');
+            infoPair.className = 'message-pair';
+            infoPair.id = 'info-' + messageId;
+            infoPair.innerHTML = `
+                <div class="message-header">
+                    <div class="user-avatar" style="background: ${message.userColor};">${avatar}</div>
+                    <strong>${message.userName || 'Anonymous'}</strong>
+                    <span class="timestamp">${timestamp}</span>
+                </div>
+                <div class="user-question">❓ ${escapeHtml(message.question)}</div>
+                <div class="info-content">
+                    ${escapeHtml(message.answerText)}
+                    <div class="info-source">
+                        Source: <a href="${message.answerLink}" target="_blank">${message.answerSource}</a>
+                    </div>
+                </div>
+            `;
+            infoDiv.appendChild(infoPair);
+
+            // Movement panel
+            const movePair = document.createElement('div');
+            movePair.className = 'message-pair';
+            movePair.id = 'move-' + messageId;
+            movePair.innerHTML = `
+                <div class="message-header">
+                    <div class="user-avatar" style="background: ${message.userColor};">${avatar}</div>
+                    <strong>${message.userName || 'Anonymous'}</strong>
+                    <span class="timestamp">${timestamp}</span>
+                </div>
+                <div class="user-question">❓ ${escapeHtml(message.question)}</div>
+                <div class="movement-content" id="move-content-${messageId}">
+                    <span class="speak-icon" onclick="speakMovement('${messageId}')">🔊 Speak</span>
+                    ${escapeHtml(message.movement)}
+                </div>
+            `;
+            moveDiv.appendChild(movePair);
+
+            // Auto-scroll
+            infoDiv.scrollTop = infoDiv.scrollHeight;
+            moveDiv.scrollTop = moveDiv.scrollHeight;
+        }
+
+        function askQuestion() {
+            const input = document.getElementById('userQuestion');
+            const question = input.value.trim();
+            const userName = document.getElementById('userName').value.trim();
+
+            if (!userName) {
+                alert('Please enter your name first!');
+                document.getElementById('userName').focus();
+                return;
+            }
+
+            if (!question) {
+                alert('Please type a question!');
+                return;
+            }
+
+            if (!messagesRef) {
+                alert('Firebase not initialized.');
+                return;
+            }
+
+            // Get the BEST matching response based on question
+            const response = getMatchingResponse(question);
+            
+            // Generate movement with specific patent details embedded
+            const movement = generateMovementPseudocode(response.text, response);
+
+            // Save to Firebase
+            messagesRef.push({
+                question: question,
+                answerText: response.text,
+                answerSource: response.source,
+                answerLink: response.link,
+                movement: movement,
+                userName: userName,
+                userColor: userColor,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            input.value = '';
+            input.focus();
+        }
+
+        function speakMovement(messageId) {
+            const moveElement = document.getElementById('move-content-' + messageId);
+            if (!moveElement) return;
+
+            const movementText = moveElement.textContent.replace('🔊 Speak', '').trim();
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(movementText);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                const speakIcon = moveElement.querySelector('.speak-icon');
+                speakIcon.textContent = '⏸️ Speaking...';
+
+                utterance.onend = () => {
+                    speakIcon.textContent = '🔊 Speak';
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('Text-to-speech is not supported in your browser.');
+            }
         }
 
         function showResetModal() {
@@ -1406,10 +1694,10 @@ const firebaseConfig = {
         function confirmReset() {
             if (!messagesRef) return;
             messagesRef.remove().then(() => {
-                alert('All messages have been reset!');
+                alert('All Q&A pairs have been reset!');
                 closeResetModal();
-                document.getElementById('infoOutput').innerHTML = '<div class="loading">No messages yet. Start contributing!</div>';
-                document.getElementById('movementOutput').innerHTML = '<div class="loading">Waiting for contributions...</div>';
+                document.getElementById('infoOutput').innerHTML = '<div class="empty-state"><h3>🔍 Waiting for Questions</h3><p>Ask about women inventors below</p></div>';
+                document.getElementById('movementOutput').innerHTML = '<div class="empty-state"><h3>💃 Movement Awaits</h3><p>Choreography will appear here</p></div>';
             });
         }
 
