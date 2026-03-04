@@ -43,9 +43,6 @@
         }
 
         .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
             background: white;
             padding: 20px;
             min-height: 600px;
@@ -54,6 +51,7 @@
         .output-panel {
             display: flex;
             flex-direction: column;
+            margin-bottom: 20px;
         }
 
         .panel-header {
@@ -136,6 +134,10 @@
             background: white;
             padding: 20px;
             border-radius: 0 0 15px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .input-row {
@@ -196,8 +198,11 @@
     <div class="container">
         <div class="header">
             💡 CAREbot Collaborative Q&A
-            <div style="font-size: 0.7em; font-weight: normal; margin-top: 5px;">
+            <div style="font-size: 0.7em; font-weight: normal; margin-top: 5px; display: flex; gap: 15px; align-items: center;">
                 <span id="onlineCount">👥 Connecting...</span>
+                <button onclick="showResetModal()" style="padding: 5px 15px; font-size: 0.9em; background: rgba(255,255,255,0.2); border: 2px solid white; color: white; border-radius: 15px; cursor: pointer;">
+                    🔄 Reset
+                </button>
             </div>
         </div>
 
@@ -205,39 +210,41 @@
             Ask questions about women inventors - everyone sees the same answers! (With Firebase collaboration)
         </div>
 
-        <div class="main-content">
-            <div class="output-panel">
-                <div class="panel-header">
-                    📝 Patent Information
-                </div>
-                <div class="messages-area" id="infoOutput">
-                    <div class="empty-state">
-                        <h3>Type a question below</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="output-panel">
-                <div class="panel-header movement">
-                    🎭 Movement Instructions
-                </div>
-                <div class="messages-area" id="movementOutput">
-                    <div class="empty-state">
-                        <h3>Movement will appear here</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="input-section">
             <div class="input-row">
                 <input type="text" id="userName" placeholder="Your name..." value="Tester">
             </div>
             <div class="input-row">
-                <input type="text" id="userQuestion" placeholder="Ask: Katherine Johnson, Mary Winter, sewing machines, space, etc..." autocomplete="off">
+                <input type="text" id="userQuestion" placeholder="Ask me something about technology and inventions." autocomplete="off">
                 <button onclick="askQuestion()">Ask</button>
             </div>
             <div id="debugLog"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="output-panel">
+                <div class="messages-area" id="outputArea">
+                    <div class="empty-state">
+                        <h3>Answers will appear below</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Modal -->
+    <div id="resetModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%;">
+            <h3 style="color: #880e4f; margin-bottom: 20px;">⚠️ Reset All Messages?</h3>
+            <p style="margin-bottom: 20px;">This will clear all Q&A pairs from the display and Firebase database. This action cannot be undone.</p>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="closeResetModal()" style="flex: 1; background: linear-gradient(135deg, #757575 0%, #424242 100%);">
+                    Cancel
+                </button>
+                <button onclick="confirmReset()" style="flex: 1;">
+                    Reset All
+                </button>
+            </div>
         </div>
     </div>
 
@@ -977,88 +984,369 @@
             const invMatch = text.match(/patented (?:a|an|the)\s+([^,\.]+?)(?:\s+on|\s+\()/i);
             if (invMatch) invention = invMatch[1].trim();
             
-            // Build movement sequence
-            movement.push(`MOVEMENT SEQUENCE: ${invention}`);
-            movement.push(`INVENTOR: ${inventor}`);
-            if (year) movement.push(`YEAR: ${year}`);
-            movement.push(`\n=== CHOREOGRAPHIC INSTRUCTIONS ===\n`);
+            // Build HIP HOP movement sequence
+            movement.push(`🎤 HIP HOP SEQUENCE: ${invention}`);
+            movement.push(`INNOVATOR: ${inventor}`);
+            if (year) movement.push(`YEAR: ${year} - THROW IT BACK!`);
+            movement.push(`\n=== CHOREO BREAKDOWN ===\n`);
             
-            let step = 1;
+            let count = 1;
             
-            // Opening
-            movement.push(`${step}. OPENING: Embody the Inventor`);
-            movement.push(`   - Speak aloud: "${inventor}"`);
-            movement.push(`   - Feel the weight of history`);
-            step++;
+            // Opening - Always starts with popping and locking
+            movement.push(`${count}. OPENING: POP & LOCK INTO THE CIPHER`);
+            movement.push(`   🎵 Count: 5-6-7-8`);
+            movement.push(`   🤖 ROBOT REFERENCE: Metropolis Maria (1927)`);
+            movement.push(`   - Start: Art Deco statue pose - straight, metallic`);
+            movement.push(`   - 5: POP chest out (sharp) - geometric breastplate`);
+            movement.push(`   - 6: LOCK arms at 90° angles - chrome arms`);
+            movement.push(`   - 7: POP shoulders up - sculptural form`);
+            movement.push(`   - 8: Point and LOCK toward audience - head tilt`);
+            movement.push(`   - Head nod on every count`);
+            movement.push(`   - Call out: "${inventor}!"`);
+            count++;
             
-            // Content-specific movements
+            // Content-specific HIP HOP moves
             if (words.includes('machine') || words.includes('calculator') || words.includes('device')) {
-                movement.push(`\n${step}. MECHANICAL MOTION`);
-                movement.push(`   - Rotate arms like gears (${invention})`);
-                movement.push(`   - Circular motions, alternating`);
-                step++;
+                movement.push(`\n${count}. THE MACHINE: FULL ROBOT`);
+                movement.push(`   🎵 16 counts`);
+                movement.push(`   🤖 ROBOT REFERENCE: Humanoid at keyboard + Cassie running robot`);
+                movement.push(`   - Counts 1-4: ROBOT WALK forward (Cassie sprint energy)`);
+                movement.push(`     • Stiff legs, 90° knee bends, deep athletic crouch`);
+                movement.push(`     • Arms locked at sides, move mechanically`);
+                movement.push(`     • Head turns in sharp angles`);
+                movement.push(`     • Forward lean like you're accelerating`);
+                movement.push(`   - Counts 5-8: WAVE down both arms (keyboard robot)`);
+                movement.push(`     • Sit into typing position - upright posture`);
+                movement.push(`     • Arms bent 90°, hands over invisible keyboard`);
+                movement.push(`     • Start at shoulders, roll through elbows`);
+                movement.push(`     • Isolate each joint (like gears)`);
+                movement.push(`     • Fingers snap at the end - calculating!`);
+                movement.push(`   - Counts 9-12: POPPING sequence`);
+                movement.push(`     • POP chest on 9`);
+                movement.push(`     • POP right shoulder on 10`);
+                movement.push(`     • POP left shoulder on 11`);
+                movement.push(`     • POP both shoulders on 12`);
+                movement.push(`   - Counts 13-16: GLIDE and FREEZE`);
+                movement.push(`     • Moonwalk glide backward`);
+                movement.push(`     • FREEZE on 16 in robot stance`);
+                movement.push(`     • Transparent circuitry visible in your core`);
+                count++;
             }
             
             if (words.includes('space') || words.includes('satellite') || words.includes('orbit')) {
-                movement.push(`\n${step}. CELESTIAL MOTION`);
-                movement.push(`   - Spiral upward (satellite ascending)`);
-                movement.push(`   - Arms trace orbital paths`);
-                step++;
+                movement.push(`\n${count}. SPACE FLOW: ANTI-GRAVITY LOCKING`);
+                movement.push(`   🎵 16 counts`);
+                movement.push(`   🤖 ROBOT REFERENCE: Sophia robot + Grace care robot (future-facing)`);
+                movement.push(`   - Counts 1-4: Slow-motion float up`);
+                movement.push(`     • Channel Sophia: realistic human features`);
+                movement.push(`     • Professional blazer energy, sensors active`);
+                movement.push(`     • WAVE arms upward (zero gravity)`);
+                movement.push(`     • Body leans back (taking off)`);
+                movement.push(`     • Face forward like giving a presentation`);
+                movement.push(`   - Counts 5-8: ORBIT LOCK sequence`);
+                movement.push(`     • Grace energy: service mode, helpful stance`);
+                movement.push(`     • LOCK left arm high (satellite position)`);
+                movement.push(`     • LOCK right arm across chest (patterned panel)`);
+                movement.push(`     • LOCK head to side (gentle expression)`);
+                movement.push(`     • Hold the LOCK on 8 - suspended in orbit`);
+                movement.push(`   - Counts 9-12: MOONWALK orbit`);
+                movement.push(`     • Smooth moonwalk in a circle`);
+                movement.push(`     • Arms rotate around body (orbit path)`);
+                movement.push(`     • Think: AI consciousness navigating space`);
+                movement.push(`   - Counts 13-16: SPIN and point to sky`);
+                movement.push(`     • 360° spin (Earth rotation)`);
+                movement.push(`     • LOCK arm pointing up on 16`);
+                movement.push(`     • Human-like but uncanny - future is now`);
+                count++;
             }
             
             if (words.includes('sew') || words.includes('stitch') || words.includes('needle')) {
-                movement.push(`\n${step}. STITCHING MOTION`);
-                movement.push(`   - Needle through fabric gesture`);
-                movement.push(`   - In and out rhythmic pattern`);
-                step++;
+                movement.push(`\n${count}. STITCHIN': POPPING & TUTTING`);
+                movement.push(`   🎵 16 counts (double-time)`);
+                movement.push(`   🤖 ROBOT REFERENCE: Keyboard robot (articulated joints visible)`);
+                movement.push(`   - Counts 1-8: TUTTING sequence`);
+                movement.push(`     • Channel transparent torso - show your mechanics`);
+                movement.push(`     • Create 90° angles with arms (robotic precision)`);
+                movement.push(`     • Sharp geometric shapes - white robotic arms`);
+                movement.push(`     • Frame your face, then expand out`);
+                movement.push(`     • POP on each angle change`);
+                movement.push(`     • Articulated joints visible at elbows/wrists`);
+                movement.push(`     • Think: internal circuitry powering each stitch`);
+                movement.push(`   - Counts 9-12: Quick CHEST POPS`);
+                movement.push(`     • Seated position energy (at work station)`);
+                movement.push(`     • Rapid fire chest pops (like sewing machine)`);
+                movement.push(`     • One pop per stitch - 4 stitches`);
+                movement.push(`     • Shoulders square, upright posture`);
+                movement.push(`   - Counts 13-16: FINGER WAVE and LOCK`);
+                movement.push(`     • Wave through fingers (threading needle)`);
+                movement.push(`     • Hands positioned precisely (90° bent arms)`);
+                movement.push(`     • Pull invisible thread tight`);
+                movement.push(`     • LOCK final pose on 16`);
+                movement.push(`     • Transparent - we see how the magic works`);
+                count++;
             }
             
             if (words.includes('textile') || words.includes('fabric') || words.includes('weav') || words.includes('silk') || words.includes('lace')) {
-                movement.push(`\n${step}. WEAVING MOTION`);
-                movement.push(`   - Interlace fingers rhythmically`);
-                movement.push(`   - Creating fabric`);
-                step++;
+                movement.push(`\n${count}. WEAVE IT: LOCKING PATTERNS`);
+                movement.push(`   🎵 16 counts`);
+                movement.push(`   🤖 ROBOT REFERENCE: Demon Seed (domestic setting) + Realistic female android`);
+                movement.push(`   - Counts 1-4: ARM LOCKS weaving`);
+                movement.push(`     • At vanity/desk energy - intimate domestic space`);
+                movement.push(`     • Seated or standing - turning to face audience`);
+                movement.push(`     • LOCK right arm across (thread over)`);
+                movement.push(`     • LOCK left arm under (thread under)`);
+                movement.push(`     • LOCK right arm over (warp)`);
+                movement.push(`     • LOCK left arm through (weft) - weaving motion`);
+                movement.push(`     • Human-like features but mechanical precision`);
+                movement.push(`   - Counts 5-8: BODY WAVE`);
+                movement.push(`     • Blonde hair, realistic skin - almost human`);
+                movement.push(`     • Start from knees, roll up through body`);
+                movement.push(`     • Smooth wave (like fabric flowing)`);
+                movement.push(`     • Intimate direct gaze - uncanny valley`);
+                movement.push(`   - Counts 9-12: HIP POPS with footwork`);
+                movement.push(`     • POP right hip, grapevine step right`);
+                movement.push(`     • POP left hip, grapevine step left`);
+                movement.push(`     • Workshop/lab setting vibes`);
+                movement.push(`     • Creating something beautiful and strange`);
+                movement.push(`   - Counts 13-16: LOCK combo finish`);
+                movement.push(`     • Arms LOCK in cross pattern (fabric complete)`);
+                movement.push(`     • Hold and showcase - mirror reflection`);
+                movement.push(`     • Computer terminal nearby - tech meets craft`);
+                count++;
             }
             
             if (words.includes('type') || words.includes('keyboard')) {
-                movement.push(`\n${step}. TYPING MOTION`);
-                movement.push(`   - Finger strikes like keys`);
-                movement.push(`   - Rhythmic percussion`);
-                step++;
+                movement.push(`\n${count}. TYPEWRITER: POPPING RHYTHM`);
+                movement.push(`   🎵 16 counts`);
+                movement.push(`   🤖 ROBOT REFERENCE: Miss Honeywell (1960s blue robot)`);
+                movement.push(`   - Counts 1-8: FINGER POPS (typing)`);
+                movement.push(`     • Channel Miss Honeywell at her console`);
+                movement.push(`     • Blue metallic energy, structured posture`);
+                movement.push(`     • Sunglasses on, belt with control panel`);
+                movement.push(`     • Each finger hits like a key - rapid precision`);
+                movement.push(`     • Shoulder POP on every other beat`);
+                movement.push(`     • Elbow LOCKS between pops (rigid, formal)`);
+                movement.push(`   - Counts 9-12: Two-step with ARM WAVES`);
+                movement.push(`     • Step-touch in place - retro fembot style`);
+                movement.push(`     • Arms wave side to side (carriage return)`);
+                movement.push(`     • Mid-century modern aesthetic`);
+                movement.push(`   - Counts 13-14: BIG arm swing (return)`);
+                movement.push(`     • Sharp arm extend to the side - CLACK!`);
+                movement.push(`   - Counts 15-16: DING and LOCK`);
+                movement.push(`     • Head POP (typewriter bell)`);
+                movement.push(`     • Arms LOCK in typing position - demonstration mode`);
+                movement.push(`     • Imagine crowd watching in amazement`);
+                count++;
             }
             
             if (words.includes('comput') || words.includes('calculat')) {
-                movement.push(`\n${step}. COMPUTATION`);
-                movement.push(`   - Tap fingers sequentially`);
-                movement.push(`   - Each tap = one calculation`);
-                step++;
+                movement.push(`\n${count}. CALCULATE: PRECISION POPS`);
+                movement.push(`   🎵 16 counts`);
+                movement.push(`   🤖 ROBOT REFERENCE: Sophia + AI Avatar (conscious computing)`);
+                movement.push(`   - Counts 1-8: ARM ISOLATION hits`);
+                movement.push(`     • Professional stance - blazer energy`);
+                movement.push(`     • Visible sensors processing in your head`);
+                movement.push(`     • POP each arm at different angles`);
+                movement.push(`     • Right arm: 1, 3, 5, 7`);
+                movement.push(`     • Left arm: 2, 4, 6, 8`);
+                movement.push(`     • Think: each POP = one data point calculated`);
+                movement.push(`   - Counts 9-12: HEAD and CHEST combo`);
+                movement.push(`     • Conversational head tilt (AI avatar)`);
+                movement.push(`     • Isolate head (side, side, front, back)`);
+                movement.push(`     • CHEST POP on each position - learning, growing`);
+                movement.push(`     • Warm but robotic - consciousness emerging`);
+                movement.push(`   - Counts 13-16: ROBOT CALCULATION`);
+                movement.push(`     • Stiff arms tap forehead (computing)`);
+                movement.push(`     • LOCK arms at 90° - processing complete`);
+                movement.push(`     • Final finger point to temple (genius)`);
+                movement.push(`     • "I am constantly learning and growing"`);
+                count++;
             }
             
             if (words.includes('patent') || words.includes('design')) {
-                movement.push(`\n${step}. DOCUMENTATION`);
-                movement.push(`   - Draw in the air with precision`);
+                movement.push(`\n${count}. SIGN THE PATENT: LOCKING SIGNATURE`);
+                movement.push(`   🎵 8 counts`);
+                movement.push(`   🤖 ROBOT REFERENCE: Miss Honeywell demonstration (crowd watching)`);
+                movement.push(`   - Counts 1-2: Crip walk prep`);
+                movement.push(`     • British flag visible energy - international stage`);
+                movement.push(`     • Crowd in background watching in amazement`);
+                movement.push(`     • Footwork: heel-toe, heel-toe - claim your space`);
+                movement.push(`     • Operating office equipment with authority`);
+                movement.push(`   - Counts 3-5: LOCK signature in air`);
+                movement.push(`     • Blue metallic suit gleaming`);
+                movement.push(`     • Arms extended forward (demonstrating)`);
+                movement.push(`     • LOCK left arm diagonal up`);
+                movement.push(`     • LOCK right arm diagonal down`);
+                movement.push(`     • Draw BIG signature with body`);
+                movement.push(`     • Professional demonstration pose`);
+                movement.push(`     • Sunglasses on - you can't see my eyes but I see everything`);
+                movement.push(`   - Count 6: STOMP (stamping the patent)`);
+                movement.push(`     • Hard stomp, ground that innovation`);
+                movement.push(`     • Control panel at waist activating`);
+                movement.push(`     • Rigid formal posture - this is official`);
+                movement.push(`   - Counts 7-8: Victory LOCK`);
+                movement.push(`     • Arms up in V position, LOCKED`);
+                movement.push(`     • Chest POP on 8`);
+                movement.push(`     • The future is HERE, watching us watch HER`);
                 const patMatch = text.match(/Patent No\.\s+([\d,]+)/i);
-                if (patMatch) movement.push(`   - Patent No. ${patMatch[1]}`);
-                step++;
+                if (patMatch) movement.push(`   - Call out: "Patent ${patMatch[1]}!"`);
+                count++;
             }
             
-            // Time travel if year exists
+            // Breaking barriers (if applicable)
+            if (words.includes('married') || words.includes('husband') || words.includes('ridicule') || words.includes('barrier')) {
+                movement.push(`\n${count}. BREAK IT DOWN: POWER POPS`);
+                movement.push(`   🎵 16 counts (GO HARD)`);
+                movement.push(`   🤖 ROBOT REFERENCE: Blade Runner Pris (defiant android)`);
+                movement.push(`   - Counts 1-4: Pound down (breaking walls)`);
+                movement.push(`     • Intense forward gaze - no fear`);
+                movement.push(`     • Fists POP down on 1, 2, 3, 4`);
+                movement.push(`     • Strong, grounded power stance`);
+                movement.push(`     • Arms at sides, slightly away from body`);
+                movement.push(`     • Mesh layers reveal strength beneath`);
+                movement.push(`   - Counts 5-8: SHOULDER ROLL and brush off`);
+                movement.push(`     • Choker/collar detail - constriction broken`);
+                movement.push(`     • Roll shoulders back (dismissing hate)`);
+                movement.push(`     • Brush off gesture with CHEST POP`);
+                movement.push(`     • Defiant posture - I am MORE than my programming`);
+                movement.push(`   - Counts 9-12: ROBOT MARCH forward`);
+                movement.push(`     • Stiff, powerful march - unstoppable`);
+                movement.push(`     • Nothing stops this machine`);
+                movement.push(`     • Frontal stance, direct confrontation`);
+                movement.push(`   - Counts 13-16: LOCK and point`);
+                movement.push(`     • Aggressive LOCK stance`);
+                movement.push(`     • Point forward demanding respect`);
+                movement.push(`     • Replicant realness - I deserve to exist`);
+                count++;
+            }
+            
+            // Time travel element
             if (year) {
                 const yearNum = parseInt(year);
-                const paces = Math.floor((yearNum - 1800) / 20);
-                movement.push(`\n${step}. TIME TRAVEL`);
-                movement.push(`   - Step forward ${paces} paces (${year})`);
-                movement.push(`   - Each pace = 20 years`);
-                step++;
+                const decade = Math.floor(yearNum / 10) * 10;
+                movement.push(`\n${count}. TIME HOP: ${decade}s THROWBACK`);
+                movement.push(`   🎵 8 counts`);
+                movement.push(`   - Step touch forward through time`);
+                movement.push(`   - Incorporate LOCKING on each step`);
+                movement.push(`   - Style: ${decade}s flavor`);
+                movement.push(`   - Final FREEZE in period-appropriate pose`);
+                count++;
             }
+
+            // NEW: Modern domestic labor section
+            movement.push(`\n${count}. DOMESTIC LABOR: 2025 SERVICE ROBOTS`);
+            movement.push(`   🎵 24 counts - THE INVISIBLE WORK`);
+            movement.push(`   🤖 ROBOT REFERENCE: Tesla Optimus + Unitree + NEURA + Modern home robots`);
+            movement.push(`   - Counts 1-6: CLEANING SEQUENCE (vacuum robot)`);
+            movement.push(`     • White/beige bodysuit energy, helmet with circular visor`);
+            movement.push(`     • Hold invisible vacuum, sweep in straight lines`);
+            movement.push(`     • LOCK at each corner - precise domestic geometry`);
+            movement.push(`     • Wood floors, plants, furniture - this is HOME`);
+            movement.push(`     • Service labor position - bend, reach, repeat`);
+            movement.push(`   - Counts 7-10: LAUNDRY MOTION (washing machine robot)`);
+            movement.push(`     • Black and white color scheme`);
+            movement.push(`     • Bent posture at turquoise washing machine`);
+            movement.push(`     • Load/unload gesture - circular door opening`);
+            movement.push(`     • Fold invisible garments with PRECISION`);
+            movement.push(`     • Tesla Optimus folding black garment energy`);
+            movement.push(`   - Counts 11-14: IRONING GESTURE (NEURA robot)`);
+            movement.push(`     • NEURA branding on black torso`);
+            movement.push(`     • Hold invisible iron over pink fabric`);
+            movement.push(`     • Press down, glide smooth, lift - repeat`);
+            movement.push(`     • Close-up hand mechanics - every finger intentional`);
+            movement.push(`     • Art on wall behind you - domestic meets aesthetic`);
+            movement.push(`   - Counts 15-18: HOSPITALITY MODE (tea ceremony robot)`);
+            movement.push(`     • Glossy white body, dark green apron`);
+            movement.push(`     • Hold golden teapot with CEREMONY`);
+            movement.push(`     • Pour gesture - controlled, graceful`);
+            movement.push(`     • Asian calligraphy energy - ancient ritual, modern machine`);
+            movement.push(`     • This is CARE WORK made visible`);
+            movement.push(`   - Counts 19-22: KITCHEN SERVICE (Unitree + Barista)`);
+            movement.push(`     • Turquoise metallic body, LED strip face glowing cyan`);
+            movement.push(`     • Stir invisible pot, flip invisible pan`);
+            movement.push(`     • Chrome reflective head - barista precision`);
+            movement.push(`     • Operating espresso machine - coffee-making ritual`);
+            movement.push(`     • Two-armed manipulation - workshop energy`);
+            movement.push(`   - Counts 23-24: COLLABORATION GESTURE`);
+            movement.push(`     • Extend hand for human-robot handshake`);
+            movement.push(`     • "HUMANOID FRIEND" - serving at family table`);
+            movement.push(`     • FREEZE in service position`);
+            movement.push(`     • This is the future we're building: unpaid labor, mechanized`);
+            count++;
             
-            // Closing
-            movement.push(`\n${step}. CLOSING: Honor the Legacy`);
-            movement.push(`   - Hold final pose for 5 seconds`);
-            movement.push(`   - Speak: "${inventor} invented ${invention}"`);
-            movement.push(`   - Remember their contribution`);
+            // Power moves section with heavy popping
+            movement.push(`\n${count}. POWER SECTION: POP OFF`);
+            movement.push(`   🎵 16 counts - FULL ENERGY`);
+            movement.push(`   🤖 ROBOT REFERENCE: Pole dancer android + All vintage fembots`);
+            movement.push(`   - Counts 1-4: FAST POPS (showgirl mode)`);
+            movement.push(`     • RED METALLIC outfit energy - performance time`);
+            movement.push(`     • Rapid chest/shoulder pops`);
+            movement.push(`     • Show your isolation control`);
+            movement.push(`     • Performance stance - pole position`);
+            movement.push(`     • One hand reaching for invisible pole`);
+            movement.push(`     • WHITE GO-GO BOOTS stomping the beat`);
+            movement.push(`   - Counts 5-8: WAVE and LOCK combo (working the pole)`);
+            movement.push(`     • Full body wave into LOCK`);
+            movement.push(`     • Hand on invisible pole - grounded anchor`);
+            movement.push(`     • Body angled, dynamic asymmetry`);
+            movement.push(`     • Dancer pose but ROBOTIC precision`);
+            movement.push(`     • Entertainment android activated`);
+            movement.push(`   - Counts 9-12: ROBOT FREESTYLE (channel ALL fembots)`);
+            movement.push(`     • Mix 1: Grace care robot (arms at sides, helpful)`);
+            movement.push(`     • Mix 2: Miss Honeywell typing (seated, console work)`);
+            movement.push(`     • Mix 3: Miss Honeywell standing (demonstration mode)`);
+            movement.push(`     • Mix 4: Pole dancer (performance, dynamic)`);
+            movement.push(`     • Cycle through: SERVICE → OFFICE → DEMO → PERFORM`);
+            movement.push(`     • Stay mechanical, stay sharp through all modes`);
+            movement.push(`     • Neutral helpful → Rigid formal → Presentation → Fierce`);
+            movement.push(`   - Counts 13-16: BUILD TO CLIMAX`);
+            movement.push(`     • Biggest POPS you got`);
+            movement.push(`     • Hit HARD on 13, 14, 15`);
+            movement.push(`     • All robot modes ACTIVE simultaneously`);
+            movement.push(`     • LOCK on 16 ready for ending`);
+            movement.push(`     • You contain multitudes of feminine automation`);
+            count++;
+            
+            // Big finish with locking
+            movement.push(`\n${count}. ENDING: ICONIC LOCK & FREEZE`);
+            movement.push(`   🎵 Final 8 counts`);
+            movement.push(`   🤖 ROBOT REFERENCE: Return to Metropolis Maria (statue)`);
+            movement.push(`   - Counts 1-4: Run the combo`);
+            movement.push(`     • Full energy, hit every beat`);
+            movement.push(`     • POP, LOCK, WAVE - cycle through all robot eras`);
+            movement.push(`     • 1927 → 1960s → 1977 → 2020s → NOW`);
+            movement.push(`   - Counts 5-6: Body roll setup`);
+            movement.push(`     • Smooth into your final position`);
+            movement.push(`     • Channel Maria's geometric elegance`);
+            movement.push(`   - Count 7: STRIKE your hardest LOCK`);
+            movement.push(`     • Metallic chrome/silver body energy`);
+            movement.push(`     • Art Deco angular design`);
+            movement.push(`     • Arms, head, chest - all LOCKED`);
+            movement.push(`     • Most powerful pose you got`);
+            movement.push(`     • Statuesque, sculptural`);
+            movement.push(`   - Count 8: FREEZE - HOLD IT`);
+            movement.push(`     • Absolute stillness - you are a monument`);
+            movement.push(`     • Head slightly tilted - feminine power frozen in time`);
+            movement.push(`     • Let the crowd go wild`);
+            movement.push(`     • Say it: "${inventor}"`);
+            movement.push(`     • Mic drop energy 🎤⬇️`);
+            movement.push(`     • You are the intersection of human innovation and machine precision`);
             
             movement.push(`\n=== END SEQUENCE ===`);
+            movement.push(`\n💪 ENERGY: Respect the legacy, bring the fire!`);
+            movement.push(`🤖 TECHNIQUE: Sharp POPS, clean LOCKS, smooth WAVES`);
+            movement.push(`🔥 STYLE: This is HER story told through YOUR movement`);
+            movement.push(`\n👾 ROBOT LINEAGE: Metropolis (1927) → Miss Honeywell (1960s)`);
+            movement.push(`   → Demon Seed (1977) → Blade Runner (1982) → Modern AI (2020s)`);
+            movement.push(`   → Tesla Optimus, Unitree, NEURA (2025) - domestic service robots`);
+            movement.push(`\n🏠 INVISIBLE LABOR MADE VISIBLE:`);
+            movement.push(`   From factory floor to office desk to KITCHEN SINK`);
+            movement.push(`   Vacuum, laundry, ironing, tea service, coffee-making`);
+            movement.push(`   Every "helpful" robot = women's unpaid labor, mechanized`);
+            movement.push(`   Every fembot, every android, every woman who built technology`);
+            movement.push(`   Lives in this choreography. Make them VISIBLE.`);
+            movement.push(`   Dance the work that goes unseen. POP the precision required.`);
+            movement.push(`   LOCK the repetition. WAVE through centuries of service.`);
             
             return movement.join('\n');
         }
@@ -1121,47 +1409,44 @@
         function displayFromFirebase(message, messageId) {
             log('Displaying from Firebase: ' + message.question);
             
-            const infoDiv = document.getElementById('infoOutput');
-            const moveDiv = document.getElementById('movementOutput');
+            const outputArea = document.getElementById('outputArea');
             
-            // Clear empty states
-            infoDiv.querySelectorAll('.empty-state').forEach(el => el.remove());
-            moveDiv.querySelectorAll('.empty-state').forEach(el => el.remove());
+            // Clear empty state only if it exists
+            const emptyState = outputArea.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
             
-            // Info panel
-            const infoPair = document.createElement('div');
-            infoPair.className = 'message-pair';
-            infoPair.id = 'info-' + messageId;
-            infoPair.innerHTML = `
+            // Create new entry
+            const entry = document.createElement('div');
+            entry.className = 'message-pair';
+            entry.id = 'entry-' + messageId;
+            entry.innerHTML = `
                 <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">
                     <strong style="color: ${message.userColor || '#e91e63'};">${escapeHtml(message.userName || 'Anonymous')}</strong>
                 </div>
                 <div class="user-question">❓ ${escapeHtml(message.question)}</div>
-                <div class="info-content">
+                
+                <div style="background: linear-gradient(135deg, #f06292 0%, #c2185b 100%); color: white; padding: 10px 15px; border-radius: 10px 10px 0 0; font-weight: bold; margin-top: 15px;">
+                    📝 Patent Information
+                </div>
+                <div class="info-content" style="border-radius: 0;">
                     ${escapeHtml(message.answerText)}
                     <div class="info-source">
                         Source: <a href="${message.answerLink}" target="_blank">${message.answerSource}</a>
                     </div>
                 </div>
-            `;
-            infoDiv.appendChild(infoPair);
-            
-            // Movement panel
-            const movePair = document.createElement('div');
-            movePair.className = 'message-pair';
-            movePair.id = 'move-' + messageId;
-            movePair.innerHTML = `
-                <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">
-                    <strong style="color: ${message.userColor || '#e91e63'};">${escapeHtml(message.userName || 'Anonymous')}</strong>
+                
+                <div style="background: linear-gradient(135deg, #ab47bc 0%, #6a1b9a 100%); color: white; padding: 10px 15px; font-weight: bold;">
+                    🎭 Movement Instructions
                 </div>
-                <div class="user-question">❓ ${escapeHtml(message.question)}</div>
-                <div class="movement-content">${escapeHtml(message.movement)}</div>
+                <div class="movement-content" style="border-radius: 0 0 10px 10px; margin-bottom: 30px;">
+                    ${escapeHtml(message.movement)}
+                </div>
             `;
-            moveDiv.appendChild(movePair);
             
-            // Auto-scroll
-            infoDiv.scrollTop = infoDiv.scrollHeight;
-            moveDiv.scrollTop = moveDiv.scrollHeight;
+            // Add to top (prepend) so newest is at top
+            outputArea.insertBefore(entry, outputArea.firstChild);
             
             // Automatically speak the movement
             setTimeout(() => {
@@ -1201,35 +1486,40 @@
         function displayResults(question, response, movement) {
             log('Displaying results...');
             
-            const infoDiv = document.getElementById('infoOutput');
-            const moveDiv = document.getElementById('movementOutput');
+            const outputArea = document.getElementById('outputArea');
             
-            // Clear empty states
-            infoDiv.innerHTML = '';
-            moveDiv.innerHTML = '';
+            // Clear empty state only if it exists
+            const emptyState = outputArea.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
             
-            // Info panel
-            const infoPair = document.createElement('div');
-            infoPair.className = 'message-pair';
-            infoPair.innerHTML = `
+            // Create new entry (append, don't replace)
+            const entry = document.createElement('div');
+            entry.className = 'message-pair';
+            entry.innerHTML = `
                 <div class="user-question">❓ ${escapeHtml(question)}</div>
-                <div class="info-content">
+                
+                <div style="background: linear-gradient(135deg, #f06292 0%, #c2185b 100%); color: white; padding: 10px 15px; border-radius: 10px 10px 0 0; font-weight: bold; margin-top: 15px;">
+                    📝 Patent Information
+                </div>
+                <div class="info-content" style="border-radius: 0;">
                     ${escapeHtml(response.text)}
                     <div class="info-source">
                         Source: <a href="${response.link}" target="_blank">${response.source}</a>
                     </div>
                 </div>
+                
+                <div style="background: linear-gradient(135deg, #ab47bc 0%, #6a1b9a 100%); color: white; padding: 10px 15px; font-weight: bold;">
+                    🎭 Movement Instructions
+                </div>
+                <div class="movement-content" style="border-radius: 0 0 10px 10px; margin-bottom: 30px;">
+                    ${escapeHtml(movement)}
+                </div>
             `;
-            infoDiv.appendChild(infoPair);
             
-            // Movement panel
-            const movePair = document.createElement('div');
-            movePair.className = 'message-pair';
-            movePair.innerHTML = `
-                <div class="user-question">❓ ${escapeHtml(question)}</div>
-                <div class="movement-content">${escapeHtml(movement)}</div>
-            `;
-            moveDiv.appendChild(movePair);
+            // Add to top (prepend) so newest is at top
+            outputArea.insertBefore(entry, outputArea.firstChild);
             
             log('Display complete!');
             
@@ -1262,6 +1552,48 @@
                 window.speechSynthesis.cancel();
             }
         });
+
+        // Reset modal functions
+        function showResetModal() {
+            const modal = document.getElementById('resetModal');
+            modal.style.display = 'flex';
+            log('Reset modal opened');
+        }
+
+        function closeResetModal() {
+            const modal = document.getElementById('resetModal');
+            modal.style.display = 'none';
+            log('Reset modal closed');
+        }
+
+        function confirmReset() {
+            log('=== Reset confirmed ===');
+            
+            // Clear local display
+            document.getElementById('outputArea').innerHTML = '<div class="empty-state"><h3>Type a question below</h3></div>';
+            
+            // Clear Firebase if available
+            if (useFirebase && messagesRef) {
+                messagesRef.remove()
+                    .then(() => {
+                        log('✅ Firebase cleared successfully');
+                        alert('All messages have been reset!');
+                    })
+                    .catch((error) => {
+                        log('⚠️ Firebase clear error: ' + error.message);
+                        alert('Display cleared. Firebase error: ' + error.message);
+                    });
+            } else {
+                log('✅ Display cleared (offline mode)');
+                alert('Display has been reset!');
+            }
+            
+            // Reset recently shown list for variety
+            recentlyShown = [];
+            log('Recently shown list reset');
+            
+            closeResetModal();
+        }
 
         // Initial log
         log('System ready. Type a question and click Ask.');
